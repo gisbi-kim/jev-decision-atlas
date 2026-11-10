@@ -1,0 +1,52 @@
+{
+  "source": "User-supplied local execution conversation, shared 2026-11-11",
+  "model": "qwen3.5:9b",
+  "runtime": "Ollama",
+  "hardware": "RTX 5070 Ti Laptop (user-provided)",
+  "upstream": "https://github.com/christianmat/jev-pokemon",
+  "source_attachment_sha256": "21a1aef8f2ff5f5f11a45552dab9e87e3aef941ec51e84ac0c2a3fc8bd804032",
+  "notes": [
+    "The two attachments are identical.",
+    "Excerpts preserve their supplied text, with CRLF normalized to LF.",
+    "memory-excerpt.txt ends mid-key at ROUTE, exactly as in the supplied record.",
+    "The movement request in the supplied record omits responseSchema; no schema has been invented."
+  ],
+  "files": {
+    "save-layout.txt": {
+      "sha256": "63307f8d6c08818f68c8135b85a2f90f0268f791e4a3bc07b1d7b35ba02f9b83",
+      "characters": 251
+    },
+    "memory-layout.txt": {
+      "sha256": "c20f8f685b8e08fc53ac951e98c31f5fa6a25ce094d6e10e156cdd6aa4b56e15",
+      "characters": 369
+    },
+    "memory-excerpt.txt": {
+      "sha256": "79948919a863ae055dff0bc00e7d531913feb87f154e8e2c97ebc60cf18b260e",
+      "characters": 1597
+    },
+    "memory-loss-example.json": {
+      "sha256": "380a96e321115b6140896a7778a49c7d8eaf57732c2ebdd891e9f7f32ca4a081",
+      "characters": 168
+    },
+    "system-prompt.txt": {
+      "sha256": "5fa303e77e3577fd7ebbeb4d85f6c3d14ab9272c6c55dbf695a94b5b2c42f351",
+      "characters": 499
+    },
+    "battle-request.json": {
+      "sha256": "58bfdc7fdc483a3d740b17f94efaeab3db6fdfb36db4b0fd5c81d2bdda8c8651",
+      "characters": 4267
+    },
+    "battle-response.json": {
+      "sha256": "ac0142d79f35d952430a5a51c59ce1369088920765e1ee9ab3678efaa2575589",
+      "characters": 24
+    },
+    "movement-request.json": {
+      "sha256": "a337a41032d25f65be853dc748ef59be1b072953713994f2678bcb79486e85a6",
+      "characters": 4219
+    },
+    "movement-response.json": {
+      "sha256": "0eed012148c2bea5409cf9e2d56bfa71d1b79a1f32fd7725e0993c0ae4eb0b69",
+      "characters": 37
+    }
+  }
+}

@@ -1,0 +1,36 @@
+// Verify article rendering, local routes and editorial inline links without a browser.
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..'),ctx=vm.createContext({window:{}});
+for(const name of ['data.js','articles.js','pokemon-local.js','intro.js','inline-links.js','article-view.js'])vm.runInContext(fs.readFileSync(path.join(root,name),'utf8'),ctx);
+const w=ctx.window,cases=[w.ATLAS_INTRO,...w.ATLAS_CASES],report=[];
+for(const c of cases){
+  const a=w.ATLAS_ARTICLES[c.id],html=w.ArticleView.render({...c,author:''},a,'');
+  assert(html.includes(a.title));
+  assert.equal(new Set(a.sections.map(s=>s.id)).size,a.sections.length);
+  for(const s of a.sections)for(const b of s.blocks){
+    if(b.provenance==='user-run'){
+      assert.equal(b.code,fs.readFileSync(path.join(root,b.source),'utf8'),b.label);
+      if(b.lang==='json')JSON.parse(b.code);
+    }
+    for(const l of b.links||[]){assert(b.text.includes(l.text),l.text);assert(/^https:\/\//.test(l.url)||cases.some(c=>'#case/'+c.id===l.url)||(/^assets\/pokemon-local\/[a-z.-]+$/.test(l.url)&&fs.existsSync(path.join(root,l.url))),l.url);}
+    if(b.type==='case-links')for(const item of b.items)assert(cases.some(c=>c.id===item.id));
+  }
+  const links=[...html.matchAll(/class="inline-source" href="([^"]+)"/g)].map(m=>m[1]);
+  for(const tag of html.matchAll(/<a class="inline-source"[^>]+>/g))if(tag[0].includes('href="https://'))assert(tag[0].includes('target="_blank" rel="noopener noreferrer"'));
+  report.push({id:c.id,sections:a.sections.length,inlineLinks:links.length});
+}
+assert.equal(cases.length,9);
+const local=path.join(root,'assets/pokemon-local');
+const manifest=JSON.parse(fs.readFileSync(path.join(local,'manifest.json'),'utf8'));
+const crypto=require('node:crypto');
+for(const [name,info] of Object.entries(manifest.files))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(local,name))).digest('hex'),info.sha256,name);
+const battle=JSON.parse(fs.readFileSync(path.join(local,'battle-request.json'),'utf8'));
+const battleAnswer=JSON.parse(fs.readFileSync(path.join(local,'battle-response.json'),'utf8'));
+const movement=JSON.parse(fs.readFileSync(path.join(local,'movement-request.json'),'utf8'));
+const movementAnswer=JSON.parse(fs.readFileSync(path.join(local,'movement-response.json'),'utf8'));
+assert(battle.responseSchema.properties.decision.enum.includes(battleAnswer.decision));
+assert(Object.hasOwn(movement.questions.decision.criteria,movementAnswer.decision));
+assert(movement.state.recentActions.includes('battle vs EKANS: '+battleAnswer.decision));
+assert.equal(w.ATLAS_ARTICLES.pokemon.sections.filter(s=>s.id.startsWith('local-')).length,5);
+fs.writeFileSync(path.join(root,'validation.json'),JSON.stringify({articles:report,intro:w.ATLAS_ARTICLES.intro.sections.flatMap(s=>s.blocks).filter(b=>b.type==='code')},null,2));
+console.log(JSON.stringify(report));

@@ -1,0 +1,11 @@
+{
+  "mem": {
+    "losses": {
+      "CERULEAN_GYM": {
+        "count": 5,
+        "team": "CHARMELEON Lv27",
+        "moves": "EMBER,GROWL,LEER,RAGE"
+      }
+    }
+  }
+}

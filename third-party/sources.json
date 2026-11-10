@@ -1,0 +1,26 @@
+[
+  {
+    "repo": "christianmat/jev-pokemon",
+    "license": "GPL-2.0",
+    "url": "https://github.com/christianmat/jev-pokemon/blob/main/LICENSE",
+    "file": "christianmat--jev-pokemon-LICENSE.txt"
+  },
+  {
+    "repo": "opper-ai/jevman-benchmark",
+    "license": "AGPL-3.0",
+    "url": "https://github.com/opper-ai/jevman-benchmark/blob/main/LICENSE",
+    "file": "opper-ai--jevman-benchmark-LICENSE.txt"
+  },
+  {
+    "repo": "RomanSlack/jev-drone",
+    "license": "MIT",
+    "url": "https://github.com/RomanSlack/jev-drone/blob/main/LICENSE",
+    "file": "RomanSlack--jev-drone-LICENSE.txt"
+  },
+  {
+    "repo": "Control-derek/so101-jev",
+    "license": "MIT",
+    "url": "https://github.com/Control-derek/so101-jev/blob/main/LICENSE",
+    "file": "Control-derek--so101-jev-LICENSE.txt"
+  }
+]

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f7f5"><meta name="description" content="게임, 웹 탐색, 로봇에서 Jev의 판단과 실행을 배우는 RT616 강의 8편. 원문, 실제 코드, 계산 예제와 풀이.">
+  <title>Jev 사용 사례 — RT616</title><link rel="icon" href="assets/favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="blog.css">
+  <script src="data.js" defer></script><script src="articles.js" defer></script><script src="pokemon-local.js" defer></script><script src="intro.js" defer></script><script src="inline-links.js" defer></script><script src="article-view.js" defer></script><script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#collection">사례 목록으로</a>
+  <header class="masthead"><a href="#" class="wordmark" aria-label="홈">RT616<span>/</span>CASE STUDIES</a><nav><a href="#sources">자료 안내</a><a href="https://github.com/team-aprl/lecture-RT616-public" target="_blank" rel="noopener">강의 저장소 ↗</a></nav></header>
+  <main>
+    <section class="intro"><div><p class="edition">VISION LANGUAGE DECISION MODELS · 2026.11</p><h1>Jev 사용 사례<span class="red">.</span></h1><p class="dek">포켓몬의 경로부터 로봇팔의 움직임까지.<br>실제 구현과 실험으로 배우는 8편의 강의.</p></div><div class="issue-number" aria-hidden="true">08<small>LESSONS</small></div></section>
+    <a class="tutorial-pocket" href="#case/intro" data-case="intro"><div class="tutorial-number">00<span>START HERE</span></div><div><p class="tutorial-eyebrow">입문 튜토리얼 · 약 25분</p><h2>Jev란 무엇인가?<br>판단을 프로그램에 넣는 법.</h2><p>System One, 상태와 질문, 선택과 확률.<br>작은 코드 예제부터 DOOM의 행동 조합까지.</p></div><div class="tutorial-action">입문 강의 읽기 ↗<small>튜토리얼 → 8개의 실제 구현</small></div></a>
+    <section id="collection" aria-label="프로젝트 목록">
+      <div class="toolbar"><div class="filters" role="group" aria-label="사례 분야"><button data-filter="all" aria-pressed="true">전체 <span>8</span></button><button data-filter="game" aria-pressed="false">게임 <span>5</span></button><button data-filter="web" aria-pressed="false">웹 <span>1</span></button><button data-filter="robot" aria-pressed="false">로봇 <span>2</span></button></div><button id="toggle-previews" aria-pressed="false">영상 멈춤 Ⅱ</button><label class="search"><span>검색</span><input type="search" id="search" aria-label="사례 검색" placeholder="프로젝트, 개념"><kbd>/</kbd></label></div>
+      <p class="sr-only" id="result-count" aria-live="polite"></p><div class="projects" id="projects"></div>
+      <div id="empty-state" hidden><p>검색 결과가 없습니다.</p><button id="reset-filters">전체 사례 보기</button></div>
+    </section>
+    <section id="sources" class="source-note"><h2>자료에 관하여</h2><div><p>제작자의 블로그, 구현 코드, 실험 기록을 바탕으로 구성한 강의 노트다. 포켓몬 글에서는 2389 Research의 정책 선택, Christian Mathiesen의 완주 구현, 강의자가 제공한 로컬 Qwen 실행의 기억과 프롬프트를 함께 살펴본다.</p><p>각 글은 <strong>판단에 필요한 정보와 선택지</strong>, <strong>선택을 실행하는 코드</strong>를 설명하고 실패 원인과 실험 결과를 연결한다. 원문과 코드의 출처는 해당 문단에, 계산 문제의 풀이는 문제 아래에 있다.</p><a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev" target="_blank" rel="noopener">TypeSafe의 Jev 공식 소개 ↗</a></div></section>
+  </main>
+  <footer><span>RT616 · Vision / Image Processing</span><span>자료 확인 2026.11.11</span><a href="#">맨 위로 ↑</a></footer>
+  <dialog id="case-dialog" aria-labelledby="dialog-title"><div class="reader-bar"><span id="reader-index"></span><div><button id="copy-article-link">글 주소 복사</button><button id="close-dialog" aria-label="사례 닫기">목록으로 ×</button></div><progress id="reading-progress" max="100" value="0" aria-label="글 읽기 진행률"></progress></div><article id="reader"></article><div class="reader-nav"><button id="prev-case">← 이전 사례</button><button id="next-case">다음 사례 →</button></div><div id="reader-status" class="sr-only" role="status"></div></dialog>
+</body>
+</html>

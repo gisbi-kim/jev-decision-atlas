@@ -1,0 +1,123 @@
+{
+  "state": {
+    "objective": {
+      "goal": "Defeat Misty, the Cerulean City Gym Leader (Water type). Electric or Grass moves are strong against her; Fire moves are weak against Water. Her team: Staryu Lv18 and Starmie Lv21 (Water/Psychic).",
+      "where": "CERULEAN_GYM",
+      "typicalOpponentLevel": 21
+    },
+    "partyHealth": "100% total HP, 0 fainted",
+    "strongestLevel": 28,
+    "teamSize": "1/6",
+    "teamVsObjective": [
+      "CHARMELEON Lv28: best move vs WATER is normal effectiveness; WATER moves are super effective x2 against it"
+    ],
+    "returnPointIfAllFaint": "Pokémon Center in PEWTER_CITY",
+    "lossesSoFar": [
+      "All Pokémon fainted at PEWTER_GYM 5 time(s); team at the last one: CHARMANDER Lv13",
+      "All Pokémon fainted at ROUTE_3 1 time(s); team at the last one: CHARMELEON Lv17",
+      "All Pokémon fainted at MT_MOON_B2F 1 time(s); team at the last one: CHARMELEON Lv19",
+      "All Pokémon fainted at CERULEAN_GYM 5 time(s); team at the last one: CHARMELEON Lv27"
+    ],
+    "pokeBalls": 1,
+    "location": "ROUTE_4",
+    "badges": 1,
+    "money": 318,
+    "party": [
+      {
+        "name": "CAT",
+        "species": "CHARMELEON",
+        "level": 28,
+        "hp": "79/79",
+        "status": "OK",
+        "types": "FIRE",
+        "moves": [
+          "RAGE (NORMAL, pow 20, 20/20pp)",
+          "GROWL (NORMAL, pow 0, 40/40pp)",
+          "EMBER (FIRE, pow 40, 10/25pp)",
+          "LEER (NORMAL, pow 0, 30/30pp)"
+        ]
+      }
+    ],
+    "bag": [
+      "TM34 x1",
+      "MOON STONE x1",
+      "HELIX FOSSIL x1",
+      "POKé BALL x1",
+      "ANTIDOTE x1"
+    ],
+    "recentDialog": [
+      "E",
+      "Use item on which POKéMON?",
+      "CAT recovered by 3!",
+      "EXIT",
+      "Wild EKANS appeared!",
+      "Go! CAT!"
+    ],
+    "recentActions": [
+      "battle vs SPEAROW: Use EMBER",
+      "ROUTE_4: Use POTION from the bag",
+      "menu[CAT] -> CAT",
+      "menu[TM34|MOON STONE|HELIX FOSSIL] -> Close this menu",
+      "ROUTE_4: Explore this area",
+      "ROUTE_4: Go east to CERULEAN_CITY"
+    ],
+    "battle": {
+      "kind": "wild",
+      "enemy": {
+        "species": "EKANS",
+        "level": 12,
+        "hp": 33,
+        "maxHp": 33,
+        "status": "OK",
+        "types": ["POISON"],
+        "catchRate": 255,
+        "speed": 19,
+        "attack": 21,
+        "defense": 17,
+        "special": 17
+      },
+      "active": {
+        "name": "CAT",
+        "species": "CHARMELEON",
+        "level": 28,
+        "hp": "79/79",
+        "status": "OK",
+        "types": ["FIRE"],
+        "speed": 56
+      }
+    },
+    "currentFocus": "progress"
+  },
+  "questions": {
+    "decision": {
+      "type": "choice",
+      "instructions": "You are in a Pokémon battle. Choose the best action for this battle.",
+      "criteria": {
+        "Use RAGE": "RAGE: NORMAL move, power 20, accuracy 100%, 20 PP left. normal effectiveness against POISON. Estimated damage 16-19 HP vs enemy's 33 HP left (high damage).",
+        "Use GROWL": "GROWL: NORMAL move, power 0, accuracy 100%, 40 PP left. Status move (no direct damage).",
+        "Use EMBER": "EMBER: FIRE move, power 40, accuracy 100%, 10 PP left. normal effectiveness against POISON. Same-type bonus. Estimated damage 41-49 HP vs enemy's 33 HP left (likely KO).",
+        "Use LEER": "LEER: NORMAL move, power 0, accuracy 100%, 30 PP left. Status move (no direct damage).",
+        "Throw POKé BALL": "Estimated catch chance ~34% per POKé BALL right now. NEW species you don't own yet. Its type(s) POISON are not on your team yet. Its level 12 is higher than 0 of your 1 team members. Team size 1/6. Try to catch the wild EKANS (Lv12, POISON, catch rate 255/255, HP 33/33, status OK). Lower HP and sleep/paralysis make catching easier. Party size 1/6. 1 left.",
+        "Run away": "Flee from the wild EKANS. Speed 56 vs enemy 19 (escape guaranteed). No experience gained."
+      }
+    }
+  },
+  "responseSchema": {
+    "type": "object",
+    "properties": {
+      "decision": {
+        "type": "string",
+        "enum": [
+          "Use RAGE",
+          "Use GROWL",
+          "Use EMBER",
+          "Use LEER",
+          "Throw POKé BALL",
+          "Run away"
+        ]
+      }
+    },
+    "required": ["decision"],
+    "additionalProperties": false
+  }
+}

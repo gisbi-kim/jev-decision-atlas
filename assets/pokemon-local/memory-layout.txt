@@ -1,0 +1,11 @@
+최상위
+├─ mem                    AI가 기억하는 상세 정보
+│  ├─ visitedMaps         맵별 방문 횟수
+│  ├─ talked              NPC별 대화 횟수
+│  ├─ usedTargets         이동·대화·아이템 사용 등 행동 횟수
+│  ├─ dialog / actions    최근 대화와 행동
+│  ├─ npcText             NPC별로 기억한 대사
+│  ├─ intent              현재 행동 의도
+│  ├─ losses              장소별 패배 기록
+│  └─ 기타 탐색·아이템 관련 상태
+└─ visited                방문한 맵 이름 목록

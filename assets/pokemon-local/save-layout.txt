@@ -1,0 +1,7 @@
+saves/
+├─ autosave.state.json       게임 자체의 상태
+├─ autosave.memory.json      AI의 진행 관련 기억
+├─ manual-숫자.state.json    수동 저장 게임 상태
+├─ manual-숫자.memory.json   그 시점의 AI 기억
+├─ milestone-08-mt_moon.*    주요 진행 지점 저장
+└─ latest.txt                마지막 주요 진행 지점 이름

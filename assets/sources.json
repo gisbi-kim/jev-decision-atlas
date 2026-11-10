@@ -1,0 +1,9 @@
+{
+  "pokemon.jpg": "https://raw.githubusercontent.com/christianmat/jev-pokemon/main/site/highlights.jpg",
+  "pokemon.mp4": "https://raw.githubusercontent.com/christianmat/jev-pokemon/main/site/highlights.mp4",
+  "pacman.mp4": "https://raw.githubusercontent.com/opper-ai/jevman-benchmark/main/public/clips/jev.mp4",
+  "tetris.png": "https://raw.githubusercontent.com/trungdq88/jev-tetris/main/docs/screenshot.png",
+  "drone.jpg": "https://raw.githubusercontent.com/RomanSlack/jev-drone/main/site/public/figures/course-poster.jpg",
+  "drone.mp4": "https://raw.githubusercontent.com/RomanSlack/jev-drone/main/site/public/figures/course-run.mp4",
+  "robot.jpg": "https://raw.githubusercontent.com/Control-derek/so101-jev/main/docs/media/cover.jpg"
+}

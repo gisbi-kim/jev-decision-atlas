@@ -1,0 +1,94 @@
+{
+  "state": {
+    "objective": {
+      "goal": "Defeat Misty, the Cerulean City Gym Leader (Water type). Electric or Grass moves are strong against her; Fire moves are weak against Water. Her team: Staryu Lv18 and Starmie Lv21 (Water/Psychic).",
+      "where": "CERULEAN_GYM",
+      "typicalOpponentLevel": 21
+    },
+    "partyHealth": "100% total HP, 0 fainted",
+    "strongestLevel": 28,
+    "teamSize": "1/6",
+    "teamVsObjective": [
+      "CHARMELEON Lv28: best move vs WATER is normal effectiveness; WATER moves are super effective x2 against it"
+    ],
+    "returnPointIfAllFaint": "Pokémon Center in PEWTER_CITY",
+    "lossesSoFar": [
+      "All Pokémon fainted at PEWTER_GYM 5 time(s); team at the last one: CHARMANDER Lv13",
+      "All Pokémon fainted at ROUTE_3 1 time(s); team at the last one: CHARMELEON Lv17",
+      "All Pokémon fainted at MT_MOON_B2F 1 time(s); team at the last one: CHARMELEON Lv19",
+      "All Pokémon fainted at CERULEAN_GYM 5 time(s); team at the last one: CHARMELEON Lv27"
+    ],
+    "pokeBalls": 1,
+    "location": "CERULEAN_GYM",
+    "badges": 1,
+    "money": 318,
+    "party": [
+      {
+        "name": "CAT",
+        "species": "CHARMELEON",
+        "level": 28,
+        "hp": "79/79",
+        "status": "OK",
+        "types": "FIRE",
+        "moves": [
+          "RAGE (NORMAL, pow 20, 20/20pp)",
+          "GROWL (NORMAL, pow 0, 40/40pp)",
+          "EMBER (FIRE, pow 40, 9/25pp)",
+          "LEER (NORMAL, pow 0, 30/30pp)"
+        ]
+      }
+    ],
+    "bag": [
+      "TM34 x1",
+      "MOON STONE x1",
+      "HELIX FOSSIL x1",
+      "POKé BALL x1",
+      "ANTIDOTE x1"
+    ],
+    "recentDialog": [
+      "CAT gained 106 EXP. Points!",
+      "Yo! Champ in making!",
+      "Here's my advice!",
+      "The LEADER, MISTY, is a pro who uses water POKéMON!",
+      "You can drain all their water with plant POKéMON!",
+      "Or, zap them with electricity!"
+    ],
+    "recentActions": [
+      "menu[TM34|MOON STONE|HELIX FOSSIL] -> Close this menu",
+      "ROUTE_4: Explore this area",
+      "ROUTE_4: Go east to CERULEAN_CITY",
+      "battle vs EKANS: Use EMBER",
+      "CERULEAN_CITY: Enter CERULEAN_GYM",
+      "CERULEAN_GYM: Talk to GYM_GUIDE at (7,10)"
+    ],
+    "currentFocus": "Move toward the current objective now.",
+    "position": {
+      "x": 7,
+      "y": 11,
+      "map": "CERULEAN_GYM"
+    }
+  },
+  "questions": {
+    "decision": {
+      "type": "choice",
+      "instructions": "You are playing Pokémon Red. Current focus: Move toward the current objective now. Choose the overworld action that best serves this focus and the objective. Rule: if an action was already tried and nothing changed, do NOT repeat it — try something new (a different person, exit, or area).",
+      "criteria": {
+        "Enter CERULEAN_CITY": "Door/stairs/ladder at (5,13) leading to CERULEAN_CITY. Leaves the current area (the objective takes place in this area, CERULEAN_GYM). Toward the nearest Pokémon Center (2 areas). Toward the nearest Poké Mart (2 areas). Visited 6 time(s) before. 4 steps away. Matches your current focus.",
+
+        "Talk to MISTY at (4,2)": "a trainer (MISTY) at (4,2). Last time they said: \"Hi, you're a new face! Trainers who want to turn pro have to have a policy about POKéMON! What is your approach when you catch POKéMON? My policy is an all-out offensive with water-type POKéMON!\". 17 steps away. Chosen 5 time(s) already on this visit.",
+
+        "Talk to JR.TRAINER♀ at (2,3)": "a trainer (JR.TRAINER♀) at (2,3). Not yet talked to. 18 steps away.",
+
+        "Talk to SWIMMER at (8,7)": "a trainer (SWIMMER) at (8,7). Not yet talked to. 8 steps away.",
+
+        "Talk to GYM_GUIDE at (7,10)": "a person (GYM_GUIDE) at (7,10). Last time they said: \"Yo! Champ in making! Here's my advice! The LEADER, MISTY, is a pro who uses water POKéMON! You can drain all their water with plant POKéMON! Or, zap them with electricity!\". 0 steps away. Chosen 1 time(s) already on this visit.",
+
+        "Read the gym statue at (3,11)": "Not examined yet. 5 steps away.",
+
+        "Read the gym statue at (6,11)": "Not examined yet. 2 steps away.",
+
+        "Explore this area": "Walk to a part of CERULEAN_GYM not yet explored. 6 steps away."
+      }
+    }
+  }
+}
