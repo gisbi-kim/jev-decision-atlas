@@ -44,6 +44,9 @@ assert(architectureSvg.svg.includes('생성한 토큰을 다시 입력'));
 const mnistRow=architecture.rows[2];
 assert(mnistRow.example.includes('MNIST'));
 assert(mnistRow.highlight);
+assert(architectureSvg.svg.includes('MNIST 실험에 사용한 방식'));
+assert(!architectureSvg.svg.includes('width="896" height="162"'));
+assert(!/stroke="#55725a" stroke-dasharray/.test(architectureSvg.svg));
 assert.deepEqual(Array.from(mnistRow.training.backbone, t=>Array.from(t)),[['기반 고정','fixed'],['LoRA 학습','train']]);
 assert.equal(mnistRow.training.head[0][1],'train');
 for(const row of architecture.rows){

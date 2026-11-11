@@ -125,3 +125,7 @@ DOOM과 Wikiracing은 제작사의 같은 공개 글에서 소개한 두 데모�
 ## 구체적인 입력·출력으로 설명 보강 · 2026-11-11
 
 입문과 포켓몬 외 7편의 설명을 검토하고 예시를 보완했다. 원본 코드와 기존 표·출처는 모두 유지했다. 드론의 상승 한계 3.0m는 tactics.py AIRCRAFT, 낮은 장벽의 climb 0.93은 보관한 README에 대조했다. 2m·4m 장애물 높이, age_s 시간표, 동일 관측을 반복 적용하는 각도 예시는 설명용 가정이다. 팩맨의 갈림길 A/B, 테트리스의 P1/P2/P9, 마리오의 상충 응답, DOOM의 체력·명령 시간표, 연습용 위키 문서 연결도 실제 실행 로그로 제시하지 않는다. 로봇팔 word 함수의 세 출력은 원본 함수로 실행해 확인했다.
+
+## 비교 글의 분류와 입력 예시 보완 · 2026-11-11
+
+③·④의 별도 head 공통점과 backbone 차이를 구분하고, diffusion을 답 추출 방법과 별개의 축으로 설명했다. djev README의 seeded canvas·one denoise step과 Drex DLM 모델 카드의 Efficient-DLM + pointer head를 다시 확인했다. Kanana decision_kanana_v_decide.py의 build_pairs(show_criteria=True), 후보 schema 구성 코드를 확인해 본문에 직접 연결했다. 환불 문의와 점수 4.2/0.3/−0.5, 유사도 0.86/0.21/0.08은 계산 설명용 가정이며 실행 결과로 제시하지 않는다. 기존 원문 링크와 코드 예제는 유지했다.

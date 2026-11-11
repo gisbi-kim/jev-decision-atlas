@@ -28,6 +28,7 @@
     jeff: { label: 'logan-markewich · GLiFormer 기반 jeff', url: 'https://github.com/logan-markewich/jeff' },
     clm: { label: 'Contrastive Language Models · 상태·행동 임베딩과 projection head', url: 'https://github.com/Contrastive-LM/CLM' },
     kanana: { label: 'Kakao · Kanana-2-v-decide-3b-2611 모델 카드', url: 'https://huggingface.co/kakaocorp/kanana-2-v-decide-3b-2611' },
+    kananaCode: { label: 'Kanana 입력 구성 · build_pairs의 show_criteria 기본값', url: 'https://huggingface.co/kakaocorp/kanana-2-v-decide-3b-2611/blob/main/decision_kanana_v_decide.py' },
     djev: { label: 'mmastrac · DiffusionGemma의 structured readout', url: 'https://github.com/mmastrac/djev' },
     drexDlm: { label: 'Nace.AI · Efficient-DLM 기반 Drex DLM', url: 'https://huggingface.co/nace-ai/drex-dlm' },
     jev: { label: 'TypeSafe · System One 공식 설명', url: 'https://docs.typesafe.ai/concepts/system-one' },
@@ -95,6 +96,7 @@
       sources.jeff,
       sources.clm,
       sources.kanana,
+      sources.kananaCode,
       sources.djev,
       sources.drexDlm,
       sources.jev,
@@ -162,12 +164,13 @@
         id: "comparison-families",
         title: "다섯 방식은 어디서 갈리고, 어디를 학습할까?",
         blocks: [
-          p("다섯 방식의 차이는 “입력을 읽은 뒤 무엇으로 후보 점수를 만드는가”에 있다. 아래 그림의 backbone은 입력을 읽어 숫자 배열로 표현하는 모델 본체다. head는 그 표현을 받아 출력 점수를 만드는 마지막 계산 부분이다. LM head는 언어 모델이 다음 토큰(글자·단어 조각)의 점수를 내는 기존 출력층이다. 이 층을 그대로 쓰는 방식도 있고, 후보를 채점하는 head를 새로 붙이는 방식도 있다."),
+          p("먼저 두 질문을 구분한다. “입력을 어떤 본체로 읽는가?”와 “읽은 결과에서 답을 어떻게 얻는가?”다. 본체(backbone)는 입력을 숫자 배열로 표현하고, head는 그 표현에서 출력 점수를 계산한다. 기존 언어 모델의 LM head는 다음 토큰, 즉 글자·단어 조각의 점수를 내는 출력층이다. 이 점수를 읽을 수도 있고, 행동 후보를 채점하는 head를 따로 붙일 수도 있다."),
+          p("아래 다섯 행은 서로 겹치지 않는 다섯 종류의 모델이 아니라, 실제 구현을 비교하기 위한 다섯 구성 예다. 답을 얻는 방법만 묶으면 ① 문자열 생성, ② 토큰 점수 읽기, ③·④ 별도 head로 채점, ⑤ 임베딩 유사도 비교의 네 갈래가 된다. ③은 주로 생성용 decoder에 붙인 head를, ④는 양방향 encoder에 붙인 head를 보여 준다. 둘은 본체가 다르지만 “별도 head로 채점한다”는 점에서는 같은 갈래다."),
           {
             type: "diagram",
             layout: "architecture-comparison",
             title: "다섯 계산 경로와 학습 위치 · MNIST는 ③",
-            caption: "위쪽 상자는 답을 계산하는 흐름, 아래 배지는 사용하거나 학습하는 부분이다. ①은 로컬 포켓몬, ③은 직접 학습한 MNIST 설정을 표시했다. ②·④·⑤는 완성된 모델을 사용하는 경우와 추가 학습을 선택하는 경우를 구분했다. 초록 배지는 학습, 회색 배지는 고정, 초록 테두리는 선택 사항이다. 학습데이터가 필요 없다는 말은 가중치를 그대로 사용한다는 뜻이며, 성능을 확인할 평가 자료는 따로 필요하다.",
+            caption: "위쪽 상자는 답을 계산하는 흐름, 아래 배지는 학습 설정이다. ①은 로컬 포켓몬, ③은 MNIST 실험에 사용한 방식이다. 초록 배지는 학습한 부분, 회색 배지는 고정한 부분, 회색 점선 배지는 선택적으로 추가 학습할 부분이다. ③·④는 모두 별도 head 채점이며 본체를 비교하려고 나누어 표시했다. 학습데이터가 불필요해도 성능을 확인할 평가 자료는 필요하다.",
             rows: [
               {
                 label: methods.generation,
@@ -329,7 +332,7 @@
               }
             ]
           },
-          p("구조도, 아래 표, 뒤의 다섯 절은 같은 ①~⑤ 분류를 사용한다. ① 문자열 생성은 기존 LM head로 행동 이름을 완성하고, ② Vocabulary readout은 같은 LM head에서 A·B·C의 점수만 읽고 멈춘다. ③ 별도 decision head는 생성용 decoder 본체의 내부 표현을 별도 head에 전달한다. ④ Encoder 기반 판단도 별도 head를 쓰지만, 본체가 앞뒤 문맥을 함께 읽는 encoder다. ⑤ 임베딩 간 매칭은 상태와 후보를 따로 벡터로 만들어 비교한다. 한 프로젝트가 여러 방식을 지원할 수도 있다."),
+          p("구조도, 아래 표, 뒤의 다섯 절은 같은 ①~⑤ 번호를 사용한다. ①은 기존 LM head로 행동 이름을 완성하고, ②는 같은 LM head에서 A·B·C의 점수만 읽고 멈춘다. ③ 행은 생성용 decoder와 별도 decision head의 조합을 대표 예로 보여 주며, 별도 head를 decoder에만 붙일 수 있다는 뜻은 아니다. ④는 양방향 encoder와 채점 head의 조합이다. ⑤는 상태 쪽과 후보 쪽 임베딩을 각각 만들어 유사도를 비교한다. 한 프로젝트가 여러 구성을 지원할 수도 있다."),
           table(["계열","답을 계산하는 경로","공개 사례"], [
             [methods.generation, "LLM → 답 문자열 → 파싱·검증", "로컬 포켓몬 Qwen · TypeSafe LLM adapter"],
             [methods.vocabulary, "답 위치의 후보 토큰 점수 → softmax", "AnyJev · SemIf · Nimble · Perplexity Decider"],
@@ -495,7 +498,10 @@
         id: "comparison-encoders",
         title: methods.encoders,
         blocks: [
-          p("생성용 decoder는 보통 다음 토큰을 예측하도록 만들어진 모델이다. Encoder는 입력의 앞뒤 문맥을 함께 읽어 표현을 만든다. ④ Encoder 기반 판단도 ③ 별도 decision head처럼 head로 후보 점수를 계산한다. 여기서는 본체의 차이를 보여 주기 위해 생성용 decoder에 head를 붙인 구현은 ③, 양방향 encoder에 head를 붙인 구현은 ④로 나누었다. 예를 들어 고객 문의 전체와 부서 후보를 읽고 담당 부서 점수를 계산한다."),
+          p("“결제가 두 번 됐어요. 하나는 환불해 주세요.”라는 문의를 결제팀·기술팀·영업팀 중 어디로 보낼지 정한다고 하자. ④의 대표적인 구성은 문의, “어느 부서로 보내야 하는가?”라는 질문, 부서별 업무 설명을 함께 입력받는다. 결제팀 설명에는 결제·청구·환불, 기술팀에는 오류·장애, 영업팀에는 구매 상담이 적혀 있다."),
+          p("본체는 이 글을 읽으며 각 토큰의 내부 표현(hidden states)을 만든다. 내부 표현은 문맥을 반영한 숫자 배열이다. 예를 들어 “환불” 위치의 표현에는 주변의 “결제”, “두 번”과 후보 설명에서 읽은 정보가 반영될 수 있다. 숫자 하나마다 “환불”, “결제” 같은 뜻이 하나씩 붙어 있는 것은 아니다. Head는 이 표현을 받아 후보별 점수를 계산한다. 보통 사람이 작성한 if문이 아니라, 학습으로 가중치를 정한 신경망이다."),
+          p("설명용으로 결제팀 4.2, 기술팀 0.3, 영업팀 −0.5라는 점수가 나왔다고 하자. 가장 높은 결제팀을 선택해 문의를 전달한다. 이 숫자는 실제 모델의 측정값이 아니라 계산 순서를 보여 주기 위한 가정이다. 입력을 읽는 본체 → 후보 점수를 계산하는 head → 가장 높은 후보 선택의 순서이며, 확률 형태가 필요하면 점수에 softmax를 적용한다."),
+          p("④를 encoder 기반이라고 부르는 이유는 입력을 읽는 본체가 양방향 encoder이기 때문이다. 일반적인 causal decoder의 각 위치는 그 위치와 앞쪽 토큰을 참고한다. 양방향 encoder의 각 위치는 앞뒤 토큰을 모두 참고할 수 있다. 다만 decoder도 입력 맨 끝에서는 앞에 놓인 문의와 후보 전체를 참고할 수 있다. 따라서 encoder만 전체 문의를 이해하고 decoder는 일부만 이해한다는 뜻은 아니다. ③과 ④는 모두 별도 head를 쓸 수 있으며, 여기서는 본체의 차이를 비교하려고 두 행으로 보여 준다."),
           table(["공개 구현","모델 본체와 head","특징"], [
             [
               "NandhaKishorM / Convai Innovations · Laya",
@@ -526,7 +532,9 @@
         id: "comparison-embeddings",
         title: methods.embeddings,
         blocks: [
-          p("고객 문의를 billing·technical·sales 중 하나로 나눈다고 하자. 이 방식은 문의와 질문을 벡터 하나로 만들고, 각 부서 설명도 따로 벡터로 만든다. 벡터는 내용을 표현하는 숫자 배열이며, 이를 만드는 과정을 임베딩이라고 한다. 문의 벡터와 각 후보 벡터가 얼마나 비슷한지 계산해 후보를 고른다."),
+          p("같은 중복 결제 문의를 ⑤로 처리해 보자. 이번에는 문의와 질문을 벡터 u로 만들고, 결제팀·기술팀·영업팀의 설명을 각각 벡터 v1, v2, v3로 만든다. 벡터는 숫자 배열이며, 내용을 이런 배열로 바꾸어 표현하는 것을 임베딩이라고 한다. 예를 들어 u에는 문의와 “어느 부서로 보낼까?”라는 질문이, v1에는 “결제팀: 결제·청구·환불 담당”이라는 설명이 반영된다."),
+          p("각 벡터를 만든 다음 s_i = cosine(u, v_i)를 계산한다. Cosine similarity는 두 벡터가 얼마나 비슷한 방향을 가리키는지 나타낸다. 설명용 유사도가 결제팀 0.86, 기술팀 0.21, 영업팀 0.08이라면 결제팀을 고른다. 0.86은 정답일 확률 86%라는 뜻이 아니다. 실제 모델은 유사도에 배율을 적용하기도 하며, softmax로 합이 1인 후보 분포를 만든다."),
+          p("④도 내부에서 벡터를 쓰므로, 차이는 “벡터를 쓰느냐”가 아니다. 여기서 비교한 ④는 문의와 후보의 관계를 본체와 채점 head가 처리한다. ⑤는 문의 쪽과 후보 쪽의 임베딩을 각각 만든 뒤, 그 유사도로 최종 점수를 얻는다. 문의가 하루 만 건 들어와도 부서 설명이 같다면, 후보 벡터 세 개를 저장해 두고 재사용할 수 있다."),
           table(["공개 구현","벡터를 만드는 방법","후보 점수"], [
             [
               "CLM · Contrastive Language Models",
@@ -540,24 +548,28 @@
             ]
           ]),
           p("CLM은 올바른 상태·행동의 짝은 가깝게, 다른 짝은 멀게 표현되도록 대조학습(contrastive learning)을 한다. 공개 코드에는 상태용 head와 행동용 head가 각각 있다. 카카오 Kanana-2-v-decide는 텍스트·JSON·대화·이미지 상태를 지원하며, 상태·질문 벡터와 후보 벡터의 유사도로 확률을 만든다고 설명한다. 두 모델이 같은 변환층을 쓴다는 뜻은 아니다.", [["CLM","clm"],["카카오 Kanana-2-v-decide","kanana"]]),
+p("“올바른 짝은 가깝게 학습한다”는 말은 중복 결제 문의와 결제팀 설명의 유사도는 높이고, 같은 문의와 기술팀·영업팀 설명의 유사도는 낮추도록 가중치를 조정한다는 뜻이다. 이미 이렇게 학습된 모델을 쓰면 사용자에게 새 학습 과정이 필요한 것은 아니다."),
+          p("따로 임베딩한다는 설명을 “문의 쪽에는 후보가 절대 들어가지 않는다”로 이해해서는 안 된다. Kanana의 공개 구현은 기본 설정에서 후보 목록을 문의 쪽 입력에도 포함한다. 그래도 문의 쪽 임베딩과 후보별 임베딩은 별도로 계산하고, 마지막에는 그 유사도를 비교한다.", [["Kanana의 공개 구현","kananaCode"]]),
           p("후보 설명이 계속 같으면 후보 벡터를 미리 계산해 재사용할 수 있다. 상태와 후보를 따로 읽는다고 반드시 본체 가중치도 두 벌인 것은 아니다. 같은 모델을 각각 호출할 수도 있다. 이미 학습된 모델의 벡터를 그대로 비교한다면 추가 학습이 필요 없고, 모델이나 새 변환층을 직접 학습하려면 올바른 상태·후보의 짝 같은 데이터가 필요하다.")
         ]
       },
       {
         id: "comparison-diffusion",
-        title: "Diffusion 본체에도 서로 다른 head를 붙일 수 있다",
+        title: "Diffusion은 ②·③과 어떻게 연결될까?",
         blocks: [
-          p("앞의 다섯 분류는 주로 후보 점수를 어떻게 얻는지에 따른 구분이다. Diffusion은 입력·답 위치의 표현을 갱신하는 모델 본체의 방식이다. 일반적인 순차 생성 모델이 답을 왼쪽부터 이어 쓰는 것과 달리, 여러 답 위치를 함께 갱신할 수 있다. 그 결과에서 토큰 점수를 읽을 수도 있고 별도 head로 후보를 채점할 수도 있다."),
+          p("Diffusion은 여섯 번째 답 선택 방식이 아니다. 앞에서 구분한 “답을 꺼내는 방법”과 별개로, 본체가 답 위치의 표현을 어떻게 계산하는지를 설명하는 말이다. 따라서 diffusion 모델도 토큰 점수를 읽으면 ②와 연결되고, 별도 head로 후보 점수를 내면 ③·④와 같은 채점 갈래에 속한다."),
+          p("고객 문의에서 “담당 부서: [빈칸], 긴급 여부: [빈칸]”이라는 답 틀을 준비한다고 하자. 순차 생성은 답 토큰을 하나씩 이어 쓰지만, 텍스트 diffusion은 여러 답 위치를 마스크나 노이즈에서 시작해 함께 갱신할 수 있다. 이 예시의 빈칸은 답이 들어갈 위치를 설명하기 위한 표시다. 그 위치의 토큰 분포를 읽을 수도 있고, 갱신한 내부 표현을 별도 head에 넣어 후보를 채점할 수도 있다."),
+          p("아래 표는 출력 방법을 기준으로 앞의 번호와 연결한다. djev는 ②의 토큰 점수 읽기에 해당하고, Drex DLM은 ③에서 설명한 별도 head 채점에 해당한다. 다만 앞 도식의 ③ 행에 그려진 Qwen decoder를 그대로 쓴다는 뜻은 아니다. Drex DLM에서는 그 자리를 diffusion 본체가 차지한다."),
           table(["공개 구현","모델 본체","답을 얻는 방법"], [
             [
               "mmastrac · djev",
               "DiffusionGemma",
-              "정해진 답 틀에서 답을 넣을 위치별 토큰 분포를 읽음"
+              "② 토큰 점수 읽기 · 답 칸의 토큰 분포"
             ],
             [
               "Nace.AI · Drex DLM",
               "NVIDIA Efficient-DLM",
-              "별도 pointer head로 후보를 채점; 질문끼리 읽지 못하도록 분리"
+              "③과 같은 별도 head 채점 · 본체는 diffusion; 질문 간 입력은 분리"
             ]
           ]),
           p("djev는 고정 텍스트를 남겨 두고 빈 답 위치를 준비한 뒤, 한 번의 갱신(denoise step)에서 그 위치의 토큰 분포를 읽는다. Drex DLM은 diffusion 본체에 pointer head를 붙였다. 따라서 diffusion이라는 이름만으로 head의 종류나 학습데이터 필요 여부를 알 수 없다. Nace의 Qwen 기반 Drex v2.0과 Drex DLM도 서로 다른 모델이다.", [["djev","djev"],["Drex DLM","drexDlm"],["Drex v2.0","drex"]])
