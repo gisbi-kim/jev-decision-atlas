@@ -41,6 +41,14 @@
   };
   const p = (text, refs = []) => ({ type: 'p', text, links: refs.map(([text, key]) => ({ text, url: sources[key].url })) });
   const table = (headers, rows) => ({ type: 'table', headers, rows });
+  // One name per method, reused in the diagram, overview table and section/TOC.
+  const methods = {
+    generation: '① 문자열 생성',
+    vocabulary: '② 토큰 점수 읽기',
+    heads: '③ 별도 head 채점',
+    encoders: '④ Encoder 채점',
+    embeddings: '⑤ 임베딩 비교'
+  };
   window.ATLAS_COMPARISON = {
     id: "implementations",
     number: "09",
@@ -114,13 +122,13 @@
               }
             ]
           },
-          p("MNIST 실험은 ③ 별도 decision head 방식이다. 이미지에 적힌 목표 숫자와 현재 숫자를 Qwen3.5-0.8B에 넣고, 그 내부 표현을 새 Clef 방식 head에 전달했다. head는 −1, 0(STOP), +1의 점수를 만들고, softmax가 이 점수를 세 행동의 확률로 바꾼다. 이미지가 7이고 현재 숫자가 3이면 정답 행동은 +1이다.", [["MNIST 실험","mnist"]]),
+          p("MNIST 실험은 ③ 별도 head 채점 방식이다. 이미지에 적힌 목표 숫자와 현재 숫자를 Qwen3.5-0.8B에 넣고, 그 내부 표현을 새 Clef 방식 head에 전달했다. head는 −1, 0(STOP), +1의 점수를 만들고, softmax가 이 점수를 세 행동의 확률로 바꾼다. 이미지가 7이고 현재 숫자가 3이면 정답 행동은 +1이다.", [["MNIST 실험","mnist"]]),
           p("여기서 새 head는 처음부터 이 문제를 풀 줄 아는 상태가 아니었다. 그래서 MNIST 이미지의 정답 숫자로 올바른 행동을 계산해 학습데이터를 만들었다. Qwen의 기존 가중치는 고정하고, 본체에 끼운 LoRA와 새 head를 학습했다. LoRA는 기존 가중치를 직접 바꾸는 대신 작은 보조 행렬을 학습해 모델 계산을 조정하는 방법이다."),
           table(["구분","로컬 포켓몬","직접 학습한 MNIST"], [
             [
               "다섯 방식 중 위치",
-              "① 행동 이름을 문자열로 생성",
-              "③ 별도 head로 행동을 채점"
+              methods.generation,
+              methods.heads
             ],
             [
               "사용 모델",
@@ -162,7 +170,7 @@
             caption: "위쪽 상자는 답을 계산하는 흐름, 아래 배지는 사용하거나 학습하는 부분이다. ①은 로컬 포켓몬, ③은 직접 학습한 MNIST 설정을 표시했다. ②·④·⑤는 완성된 모델을 사용하는 경우와 추가 학습을 선택하는 경우를 구분했다. 초록 배지는 학습, 회색 배지는 고정, 초록 테두리는 선택 사항이다. 학습데이터가 필요 없다는 말은 가중치를 그대로 사용한다는 뜻이며, 성능을 확인할 평가 자료는 따로 필요하다.",
             rows: [
               {
-                label: "① 문자열 생성",
+                label: methods.generation,
                 example: "포켓몬 Qwen",
                 repeat: true,
                 cells: [
@@ -194,7 +202,7 @@
                 }
               },
               {
-                label: "② 토큰 점수",
+                label: methods.vocabulary,
                 example: "AnyJev · Nimble",
                 cells: [
                   {
@@ -225,7 +233,7 @@
                 }
               },
               {
-                label: "③ 별도 head",
+                label: methods.heads,
                 example: "MNIST · Clef 방식",
                 cells: [
                   {
@@ -257,7 +265,7 @@
                 highlight: true
               },
               {
-                label: "④ Encoder",
+                label: methods.encoders,
                 example: "Laya · GLiNER",
                 cells: [
                   {
@@ -288,7 +296,7 @@
                 }
               },
               {
-                label: "⑤ 임베딩 매칭",
+                label: methods.embeddings,
                 example: "CLM · Kanana",
                 split: true,
                 cells: [
@@ -321,30 +329,30 @@
               }
             ]
           },
-          p("①은 기존 LM head로 토큰을 하나씩 골라 행동 이름을 완성한다. ②는 같은 LM head에서 A·B·C에 해당하는 점수만 읽고 멈춘다. ③은 별도 head가 본체의 내부 표현으로 후보를 채점한다. ④도 별도 head를 쓰지만, 본체가 앞뒤 문맥을 함께 읽는 encoder다. ⑤는 상태와 후보를 따로 벡터로 만든 다음 두 벡터를 비교한다. 한 프로젝트가 여러 방식을 지원할 수도 있다."),
+          p("구조도, 아래 표, 뒤의 다섯 절은 같은 ①~⑤ 분류를 사용한다. ① 문자열 생성은 기존 LM head로 행동 이름을 완성하고, ② 토큰 점수 읽기는 같은 LM head에서 A·B·C의 점수만 읽고 멈춘다. ③ 별도 head 채점은 생성용 decoder 본체의 내부 표현을 별도 head에 전달한다. ④ Encoder 채점도 별도 head를 쓰지만, 본체가 앞뒤 문맥을 함께 읽는 encoder다. ⑤ 임베딩 비교는 상태와 후보를 따로 벡터로 만들어 비교한다. 한 프로젝트가 여러 방식을 지원할 수도 있다."),
           table(["방식","기존 모델을 그대로 사용할 때","내가 학습데이터를 준비하는 때"], [
             [
-              "① 문자열 생성",
+              methods.generation,
               "기존 Qwen 등으로 행동 이름 생성; 본체·LM head 고정",
               "행동 선택을 더 잘하도록 직접 추가 학습할 때"
             ],
             [
-              "② 토큰 점수 읽기",
+              methods.vocabulary,
               "기존 모델에서 후보 토큰 점수만 읽기; 새 층 불필요",
               "Nimble처럼 LoRA 등을 직접 학습할 때"
             ],
             [
-              "③ 별도 head",
+              methods.heads,
               "head까지 학습된 Clef·Kev 등을 사용",
               "MNIST처럼 새 head를 붙이거나 기존 모델을 추가 학습할 때"
             ],
             [
-              "④ Encoder + head",
+              methods.encoders,
               "head까지 학습된 Laya·GLiNER 등을 사용",
               "새 head를 만들거나 업무에 맞게 encoder·head를 조정할 때"
             ],
             [
-              "⑤ 임베딩 비교",
+              methods.embeddings,
               "학습된 임베딩 모델의 벡터를 비교",
               "상태·후보의 짝으로 모델이나 새 벡터 변환층을 학습할 때"
             ]
@@ -359,7 +367,7 @@
       },
       {
         id: "comparison-generation",
-        title: "① 행동 이름을 생성한 뒤 프로그램이 읽는다",
+        title: methods.generation,
         blocks: [
           p("포켓몬의 Qwen은 Use EMBER라는 행동 이름을 JSON 안에 써 주었다. 모델 내부에서는 다음 토큰의 점수를 계산하고 하나를 고르는 일을 반복한다. 호출한 프로그램은 이 중간 점수 대신 완성된 문자열을 받는다. JSON schema로 허용할 이름을 제한할 수 있지만, 답을 문자열로 생성하는 과정은 그대로다."),
           p("TypeSafe의 LLM adapter도 일반 LLM을 System One API 형식으로 연결한다. discrete 모드는 선택 하나를 생성하고, probabilities 모드는 후보별 확률 숫자를 답에 써 준다. 모델이 답변에 “0.9”라고 쓴 값은 프로그램이 내부 후보 점수에서 직접 계산한 확률과 다르다. 숫자가 어떻게 만들어졌는지를 확인해야 한다.", [["LLM adapter","adapter"]]),
@@ -368,7 +376,7 @@
       },
       {
         id: "comparison-vocabulary",
-        title: "② A·B·C 토큰의 점수를 읽어 후보 확률을 만든다",
+        title: methods.vocabulary,
         blocks: [
           p("공격을 A, 회복을 B, 도주를 C에 대응시켜 질문한다. 언어 모델은 답의 첫 토큰을 고르는 위치에서 어휘 목록(vocabulary)의 각 토큰에 점수를 매긴다. 이 확률 변환 전 점수가 logit이다. 프로그램은 A·B·C의 점수만 꺼내 softmax로 합이 1인 값으로 바꾼다. 행동 이름 전체를 생성할 필요가 없다. 이렇게 모델 안의 점수를 꺼내 쓰는 것을 여기서는 readout이라고 부른다."),
           {
@@ -439,7 +447,7 @@
       },
       {
         id: "comparison-heads",
-        title: "③ 별도 head로 후보를 채점한다 · MNIST의 위치",
+        title: methods.heads,
         blocks: [
           p("이 방식은 일반 언어 모델의 LM head 대신, 후보를 채점하는 head를 사용한다. 본체가 입력을 읽으며 만든 숫자 배열을 hidden states라고 한다. head는 질문과 후보가 있는 위치의 hidden states 등을 받아 후보별 점수를 계산한다. 모든 후보에 같은 채점 함수를 적용하는 설계라면 실행할 때 후보 개수나 설명을 바꿀 수도 있다."),
           table(["공개 구현","Head에 주는 정보","점수를 만드는 방법"], [
@@ -477,9 +485,9 @@
       },
       {
         id: "comparison-encoders",
-        title: "④ 앞뒤 문맥을 함께 읽는 encoder로 후보를 채점한다",
+        title: methods.encoders,
         blocks: [
-          p("생성용 decoder는 보통 다음 토큰을 예측하도록 만들어진 모델이다. Encoder는 입력의 앞뒤 문맥을 함께 읽어 표현을 만든다. 이 분류에서는 생성용 decoder 대신 양방향 encoder를 본체로 쓰고, 그 표현을 별도 head에 전달하는 구현을 ④로 묶었다. 예를 들어 고객 문의 전체와 부서 후보를 읽고 담당 부서 점수를 계산한다."),
+          p("생성용 decoder는 보통 다음 토큰을 예측하도록 만들어진 모델이다. Encoder는 입력의 앞뒤 문맥을 함께 읽어 표현을 만든다. ④ Encoder 채점도 ③ 별도 head 채점처럼 head로 후보 점수를 계산한다. 여기서는 본체의 차이를 보여 주기 위해 생성용 decoder에 head를 붙인 구현은 ③, 양방향 encoder에 head를 붙인 구현은 ④로 나누었다. 예를 들어 고객 문의 전체와 부서 후보를 읽고 담당 부서 점수를 계산한다."),
           table(["공개 구현","모델 본체와 head","특징"], [
             [
               "NandhaKishorM / Convai Innovations · Laya",
@@ -508,7 +516,7 @@
       },
       {
         id: "comparison-embeddings",
-        title: "⑤ 상태와 후보를 따로 벡터로 만들어 비교한다",
+        title: methods.embeddings,
         blocks: [
           p("고객 문의를 billing·technical·sales 중 하나로 나눈다고 하자. 이 방식은 문의와 질문을 벡터 하나로 만들고, 각 부서 설명도 따로 벡터로 만든다. 벡터는 내용을 표현하는 숫자 배열이며, 이를 만드는 과정을 임베딩이라고 한다. 문의 벡터와 각 후보 벡터가 얼마나 비슷한지 계산해 후보를 고른다."),
           table(["공개 구현","벡터를 만드는 방법","후보 점수"], [

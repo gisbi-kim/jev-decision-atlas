@@ -32,6 +32,10 @@ for(const s of comparison.sections)for(const b of s.blocks)if(b.type==='table')f
 const architecture=comparison.sections.flatMap(s=>s.blocks).find(b=>b.layout==='architecture-comparison');
 assert.equal(architecture.rows.length,5);
 for(const row of architecture.rows)assert.equal(row.cells.length,4,row.label);
+const methodTitles=comparison.sections.slice(2,7).map(s=>s.title);
+assert.deepEqual(Array.from(architecture.rows,r=>r.label),Array.from(methodTitles));
+const methodTable=comparison.sections[1].blocks.find(b=>b.type==='table');
+assert.deepEqual(Array.from(methodTable.rows,r=>r[0]),Array.from(methodTitles));
 w.ArticleView.render(w.ATLAS_COMPARISON,comparison,'');
 const architectureSvg=w.ArticleView.diagramAt(0);
 assert.equal(architectureSvg.name,'implementations-architecture.svg');
