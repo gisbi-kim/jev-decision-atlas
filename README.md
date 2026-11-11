@@ -1,8 +1,8 @@
 # Jev 사용 사례 — RT616
 
-Jev 입문 튜토리얼을 먼저 학습하고 게임·웹·로봇 사례 8편으로 이어지는 정적 강의 사이트. 포켓몬 글에서는 2389 Research의 이동 정책 실험, Christian Mathiesen의 완주 프로젝트, Jev를 로컬 Qwen으로 교체한 실행 기록을 함께 살펴본다.
+Jev 입문 튜토리얼을 먼저 학습하고 게임·웹·로봇 사례 8편, 마지막 구현 방식 비교로 이어지는 정적 강의 사이트. 포켓몬 글에서는 2389 Research의 이동 정책 실험, Christian Mathiesen의 완주 프로젝트, Jev를 로컬 Qwen으로 교체한 실행 기록을 함께 살펴본다.
 
-[사이트 열기](https://gisbi-kim.github.io/jev-decision-atlas/) · [입문 강의](https://gisbi-kim.github.io/jev-decision-atlas/#case/intro) · [포켓몬 강의](https://gisbi-kim.github.io/jev-decision-atlas/#case/pokemon)
+[사이트 열기](https://gisbi-kim.github.io/jev-decision-atlas/) · [입문 강의](https://gisbi-kim.github.io/jev-decision-atlas/#case/intro) · [포켓몬 강의](https://gisbi-kim.github.io/jev-decision-atlas/#case/pokemon) · [구현 방식 비교](https://gisbi-kim.github.io/jev-decision-atlas/#case/implementations)
 
 ## 실행
 
@@ -18,7 +18,7 @@ python -m http.server 8766 --bind 127.0.0.1
 
 공개 저장소는 [gisbi-kim/jev-decision-atlas](https://github.com/gisbi-kim/jev-decision-atlas)이며 GitHub Pages의 게시 소스는 `main` 브랜치의 루트(`/`)다. `.nojekyll`을 포함해 정적 파일을 그대로 제공한다. 이후 `main`에 반영한 변경은 Pages에서 다시 게시된다.
 
-글은 `articles.js`, 입문은 `intro.js`, 포켓몬 로컬 실행 추가분은 `pokemon-local.js`에서 수정한다. 수정한 뒤 다음 검사를 실행한다. Node.js 24에서 확인했다.
+글은 `articles.js`, 입문은 `intro.js`, 포켓몬 로컬 실행 추가분은 `pokemon-local.js`, 마지막 비교는 `comparison.js`에서 수정한다. 수정한 뒤 다음 검사를 실행한다. Node.js 24에서 확인했다.
 
 ```sh
 node scripts/check-content.cjs
@@ -27,14 +27,26 @@ node scripts/export-diagrams.cjs
 
 첫 명령이 만드는 `validation.json`은 검사 결과이며 Git에는 포함하지 않는다. 다이어그램을 바꾸었다면 두 번째 명령으로 갱신한 `diagrams/` 파일을 함께 반영한다.
 
+## 마지막 구현 방식 비교 · 2026-11-11
+
+메인 사례 목록 뒤의 09 COMPARE 또는 [직접 주소](https://gisbi-kim.github.io/jev-decision-atlas/#case/implementations)로 연다. 로봇팔 글의 다음 이동으로도 이어진다. 기존 입문 카드·전체 화면 뷰어·목차·표·코드·풀이 스타일을 사용한다.
+
+- 포켓몬 Qwen의 JSON 생성과 MNIST의 새 head·LoRA 학습 차이에서 시작한다.
+- 문자열 생성, vocabulary readout, 별도 decision head, encoder, 분리된 임베딩 매칭의 다섯 계열을 비교한다.
+- 회사·개인 공개 구현, diffusion, 질문 격리와 공동 판단, 공급자 학습과 사용자 추가 학습, calibration을 12절로 설명한다.
+- 표 11개, API 없는 softmax 계산 예제 1개, 풀이 2개, 출처 36개와 본문 링크 44곳을 포함한다.
+- 공개 API만으로 내부 head를 확정하지 않는다. 제품·버전별 설명은 2026-11-11 스냅샷이며 새 성능·속도·가격 순위를 제시하지 않는다.
+
+검증: 기존 콘텐츠 검사에 비교 글의 로드·렌더링·내부 링크·표 열 수·마지막 글 배치를 포함했다. softmax 예제는 Python 3.13에서 실행했다. 기존 사례·계산 예제·SVG 원문은 수정하지 않았다.
+
 ## 입문 튜토리얼 · 2026-11-11
 
 메인의 00 START HERE에서 시작한다. [입문 강의](https://gisbi-kim.github.io/jev-decision-atlas/#case/intro)의 12절에서 System One과 Jev, 상태·질문·후보, Choice/Noul/Score, Python SDK 호출, 판단 조합, 확률과 confidence, RLCD, 타입과 의미의 차이, DOOM, 지연 평가를 설명한다. 마지막에 8개 사례로 가는 링크가 있고, 포켓몬부터 순서대로 이동할 수도 있다.
 
 - intro.js: 입문 강의, 코드 9개(오프라인 7개, SDK 질문 정의 1개, API 예제 1개), SVG 1개, 풀이 2개.
 - inline-links.js: 기존 8편의 원작·확장판·공식 문서·코드 파일을 본문에 연결하는 주석. 본문 재생성 후에도 보존된다.
-- 본문/도입 문장 링크 165곳(내부 강의 연결과 로컬 기록 파일 포함). 외부 링크는 새 탭으로 열고 noopener noreferrer를 적용한다.
-- 전체 9편, 68절, 코드·기록 블록 59개(코드 예제·발췌 50개와 로컬 기록 9개), SVG 11개, 풀이 12개.
+- 본문/도입 문장 링크 209곳(내부 강의 연결과 로컬 기록 파일 포함). 외부 링크는 새 탭으로 열고 noopener noreferrer를 적용한다.
+- 전체 10편, 80절, 코드·기록 블록 60개(코드 예제·발췌 51개와 로컬 기록 9개), SVG 11개, 풀이 14개.
 - 팩맨 CLI 기본 8게임/300초와 공개 리더보드의 100게임을 구분했다.
 - DOOM 캡처는 보류하고 원본 영상의 시간대별 해설과 원문 링크를 제공한다.
 
@@ -56,11 +68,11 @@ node scripts/export-diagrams.cjs
 
 - 원본 플레이 영상과 화면을 앞세운 비대칭 프로젝트 목록
 - 분야 필터, 한국어 검색, `/` 검색 단축키
-- 입문 12절과 사례 8편 56절, 총 68절
-- 코드·기록 블록 59개: 구현 코드 발췌 27개, README 발췌 4개, 오프라인 예제 17개, SDK 활용 예제 2개, 로컬 실행 기록 9개
+- 입문 12절과 사례 8편 56절, 비교 12절, 총 80절
+- 코드·기록 블록 60개: 구현 코드 발췌 27개, README 발췌 4개, 오프라인 예제 18개, SDK 활용 예제 2개, 로컬 실행 기록 9개
 - 구현 코드는 커밋·줄 번호에 연결하고, 각 글 머리와 관련 문단에 읽을 원문을 연결
 - SVG 파이프라인 11개, 목차 이동, 읽기 진행률, 코드·글 주소 복사, SVG 저장
-- 생각해 볼 문제와 펼쳐 보는 풀이 12개
+- 생각해 볼 문제와 펼쳐 보는 풀이 14개
 - 실행 영상·스크린샷·영상 표지·외부 링크를 구분해 표시, 사례별 수업 실험과 한계 설명
 - 사례별 `#case/pokemon` 형태의 주소, 이전·다음 이동, Esc로 닫기
 - 화면에 보이는 미리보기만 무음 재생, 전체 정지 버튼, 모션 감소 설정 존중
@@ -77,6 +89,7 @@ node scripts/export-diagrams.cjs
 - `blog.css`: 긴 글, 목차, 코드·표의 반응형 스타일
 - `intro.js`: 입문 튜토리얼
 - `pokemon-local.js`: 포켓몬 로컬 Qwen 실행의 추가 설명과 원문 기록
+- `comparison.js`: 다섯 가지 구현 경로·학습·병렬 처리·공개 제품 비교와 출처
 - `diagrams/`: 수업 자료에 사용할 수 있는 독립 SVG 파일 11개
 - `SOURCE_AUDIT.md`: 8편의 원문 대조와 2389 글의 절별 대응표
 - `scripts/export-diagrams.cjs`: 웹과 같은 렌더러로 SVG를 다시 내보내는 스크립트
@@ -107,11 +120,11 @@ Google Fonts를 불러오지 못하면 시스템 글꼴을 사용한다. 사이�
 ## 검증
 
 - JavaScript 문법 검사 및 로컬 HTTP 응답
-- 입문과 8개 사례 렌더링, 한국어 검색, 분야 필터
+- 입문·8개 사례·마지막 비교 렌더링과 이전·다음 이동, 한국어 검색, 분야 필터
 - 미리보기 정지, 상세 원본 영상 재생, 기사 닫기와 이동
 - 데스크톱·모바일에서 가로 넘침 없음 확인
 - 구현 코드 27개와 저장한 커밋 원본 일치, README 발췌 4개 원문 일치
-- 오프라인 예제 17개 실행, SDK 예제 2개 문법 검사, SVG 11개 XML 검사
+- 오프라인 예제 18개 실행, SDK 예제 2개 문법 검사, SVG 11개 XML 검사
 - 로컬 기록 9개 원문·해시 일치, 전투·이동 JSON과 후보·응답 연결 검사
 
 다이어그램 수정 후 독립 SVG를 갱신하려면 이 폴더에서 실행한다.
@@ -123,6 +136,13 @@ node scripts/export-diagrams.cjs
 사이트는 강의 노트를 보여 주는 정적 페이지다. DOOM·Wikiracing은 공식 글의 문제 설정과 설명된 흐름을 해설하고 호출 횟수·경로 시간 계산을 덧붙인다. 나머지 6편은 프로젝트의 실제 코드와 README를 따라간다.
 
 ## 변경 이력
+
+### 2026-11-11 · 마지막 구현 방식 비교 추가
+
+- 사례 목록 뒤에 09 COMPARE 카드를 두고, 로봇팔 글 다음에 비교 글을 연결했다. 기존 8개 사례의 순서·필터·본문은 유지했다.
+- 포켓몬과 MNIST의 차이, 다섯 계산 경로, 회사·개인 구현, diffusion, 질문별 정보 공유, 학습과 보정을 12절로 정리했다. 자료 확인일은 2026-11-11이다.
+- 기존 렌더러에 비교 글의 표제·입출력 라벨을 선택적으로 지정하도록 하고, 기존 카드·목차·표·코드 디자인을 재사용했다.
+- 공개 코드·문서 36개를 연결했다. 외부 구현 코드를 새로 복사하지 않았으며 softmax 예제는 독립적인 계산 예제다.
 
 ### 2026-11-11 · Noul과 Score의 구체적인 예시 추가
 

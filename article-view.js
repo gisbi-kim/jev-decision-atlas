@@ -72,15 +72,15 @@
     const demo=c.id==='mario'||a.hideMedia?'':`<details class="article-demo"><summary>${mediaTitle} <span>＋</span></summary><figure>${media}<figcaption>${escape(c.credit)} · <a href="${mediaSource.url}" target="_blank" rel="noopener">${c.id==='robot-arm'?'제작자 영상 보기':'출처 보기'} ↗</a></figcaption></figure></details>`;
     return `<div class="blog-shell">
       <header class="blog-heading">
-        <div class="blog-kicker">${c.id==='intro'?'TUTORIAL 00':'CASE '+c.number} / ${escape(c.name)}</div>
+        <div class="blog-kicker">${c.readerLabel?escape(c.readerLabel):c.id==='intro'?'TUTORIAL 00':'CASE '+c.number} / ${escape(c.name)}</div>
         <h2 id="dialog-title">${escape(a.title)}</h2>
         <p class="blog-deck">${prose(a.lead,a.leadLinks)}</p>
-        <p class="article-origin">원문 <a href="${escape(a.origin.url)}" target="_blank" rel="noopener">${escape(a.origin.label)} ↗</a></p>
-        <div class="blog-byline"><span>프로젝트 ${escape(c.author)}</span><span>RT616 강의 노트</span><span>약 ${a.minutes}분</span><span>2026.11.11</span></div>
+        <p class="article-origin">${escape(c.originLabel||'원문')} <a href="${escape(a.origin.url)}" target="_blank" rel="noopener">${escape(a.origin.label)} ↗</a></p>
+        <div class="blog-byline"><span>${escape(c.authorLabel||'프로젝트')} ${escape(c.author)}</span><span>RT616 강의 노트</span><span>약 ${a.minutes}분</span><span>2026.11.11</span></div>
       </header>
       <div class="blog-layout"><aside class="article-sidebar">
         <nav aria-label="글 목차"><h3>목차</h3>${a.sections.map((s,i)=>`<button data-jump="section-${s.id}"><span>${String(i+1).padStart(2,'0')}</span>${escape(s.title)}</button>`).join('')}<button data-jump="article-references"><span>↗</span>원문과 코드</button></nav>
-        <dl><dt>입력</dt><dd>${escape(c.input)}</dd><dt>${c.id==='pokemon'?'Jev / 로컬 Qwen의 선택':'Jev의 선택'}</dt><dd>${escape(c.output)}</dd><dt>실행</dt><dd>${escape(c.executor)}</dd></dl>
+        <dl><dt>입력</dt><dd>${escape(c.input)}</dd><dt>${escape(c.outputLabel||(c.id==='pokemon'?'Jev / 로컬 Qwen의 선택':'Jev의 선택'))}</dt><dd>${escape(c.output)}</dd><dt>실행</dt><dd>${escape(c.executor)}</dd></dl>
       </aside><div class="blog-content">${demo}
         ${a.sections.map((s,i)=>`<section class="blog-section" id="section-${s.id}" tabindex="-1"><div class="section-number">${String(i+1).padStart(2,'0')}</div><h3>${escape(s.title)}</h3>${s.blocks.map(b=>block(b,c.id)).join('')}</section>`).join('')}
         <section class="article-references blog-section" id="article-references" tabindex="-1"><div class="section-number">SOURCES</div><h3>원문과 코드</h3><ol>${refs.map(r=>`<li><a href="${r.url}" target="_blank" rel="noopener">${escape(r.label)} ↗</a></li>`).join('')}</ol></section>

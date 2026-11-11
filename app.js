@@ -11,7 +11,7 @@
     'robot-arm':{headline:'실제 SO-101 로봇팔로 상자 옮기기',summary:'비전 모델이 위치 차이를 읽고, Jev가 16개 동작 중 하나를 골라 실제 로봇을 움직인다.',author:'Control-derek',image:'robot.jpg',credit:'제작자 영상 표지 · Control-derek',kind:'제작자 영상 표지'}
   };
   const cases=window.ATLAS_CASES.map(c=>({...c,...edits[c.id]}));
-  const readingCases=[window.ATLAS_INTRO,...cases];
+  const readingCases=[window.ATLAS_INTRO,...cases,window.ATLAS_COMPARISON];
   const $=s=>document.querySelector(s), list=$('#projects'), dialog=$('#case-dialog');
   let filter='all',query='',active=0,returnFocus=null,previewsPaused=false;
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -36,15 +36,15 @@
     $('#empty-state').hidden=shown.length>0;$('#result-count').textContent=`8개 중 ${shown.length}개 사례`;watchVideos();
   }
   function renderReader(){
-    const c=readingCases[active];$('#reader-index').textContent=c.id==='intro'?'TUTORIAL 00 — Jev & System One':`${c.number} / 08 — ${c.name}`;
+    const c=readingCases[active];$('#reader-index').textContent=c.readerLabel?`${c.readerLabel} — ${c.name}`:c.id==='intro'?'TUTORIAL 00 — Jev & System One':`${c.number} / 08 — ${c.name}`;
     stopVideos(dialog);
-    $('#reader').innerHTML=ArticleView.render(c,window.ATLAS_ARTICLES[c.id],media(c,true));
+    $('#reader').innerHTML=ArticleView.render(c,window.ATLAS_ARTICLES[c.id],window.ATLAS_ARTICLES[c.id].hideMedia?'':media(c,true));
     document.title=`${c.name} — Jev 사용 사례`;
     $('#copy-article-link').textContent='글 주소 복사';
     $('#reading-progress').value=0;
     $('#prev-case').disabled=active===0;$('#next-case').disabled=active===readingCases.length-1;
-    $('#prev-case').textContent=active===1?'← 입문 튜토리얼':'← 이전 사례';
-    $('#next-case').textContent=active===0?'포켓몬부터 시작하기 →':'다음 사례 →';dialog.scrollTop=0;
+    $('#prev-case').textContent=active===1?'← 입문 튜토리얼':c.id==='implementations'?'← 로봇팔 사례':'← 이전 사례';
+    $('#next-case').textContent=active===0?'포켓몬부터 시작하기 →':c.id==='robot-arm'?'구현 방식 비교로 마무리 →':c.id==='implementations'?'마지막 글':'다음 사례 →';dialog.scrollTop=0;
   }
   function openCase(id,push=true){const i=readingCases.findIndex(c=>c.id===id);if(i<0)return;active=i;stopVideos(list);if(!dialog.open){returnFocus=document.activeElement;dialog.showModal();document.body.style.overflow='hidden';}if(push)history.pushState(null,'',`#case/${id}`);renderReader();$('#close-dialog').focus();}
   function close(){if(dialog.open)dialog.close();}
