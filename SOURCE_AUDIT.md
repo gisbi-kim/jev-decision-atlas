@@ -2,6 +2,23 @@
 
 8개 카드의 본문을 제작자 원문과 구현에 대조했다. 포켓몬은 서로 다른 두 프로젝트를 한 강의에서 비교하며, 2389의 원문과 Mathiesen의 완주 기록을 구분한다. 글의 길이를 늘리는 것보다 설계의 이유와 실제 관측을 연결하는 데 초점을 뒀다.
 
+## 마지막 구현 방식 비교 · 2026-11-11
+
+`comparison.js`의 12절은 앞선 사례를 마무리하는 비교 해설이다. 출처 36개를 본문과 글 끝에 연결했다. 분류는 공개된 계산 경로를 바탕으로 작성한 편집상의 구분이며, 완전히 배타적인 이론 분류나 제품 순위로 표시하지 않는다.
+
+| 비교 범위 | 확인한 1차 자료 | 구분하여 반영한 내용 |
+| --- | --- | --- |
+| 포켓몬 / MNIST | 기존 공개 실행 기록, [MNIST 튜토리얼](https://gisbi-kim.github.io/jev-mnist-tutorial/site/index.html) | 생성한 행동 이름과 새 head의 확률, 과제 추가 학습과 기존 사전학습 |
+| Vocabulary readout | [AnyJev](https://github.com/nokia-applied-research/AnyJev), SemIf, simple-jev, openjev-sglang, Nimble·Tev1의 README·학습 문서 | Raw logits, 순서·prior 보정, 기존 LM head의 fine-tuning, 한 글자 답 생성과 readout |
+| 학습한 readout | [Perplexity v1.2 카드](https://huggingface.co/perplexity-ai/pplx-decider-v1.2), [Baseten 보고서](https://labs.baseten.co/articles/mammoth-1-and-elephant-1-frontier-decision-models), H2O-Lightning·GLiDE-27B 카드 | 축소 readout과 복잡한 새 head를 구분, 질문 marker·attention·전체 학습 |
+| 별도 head | [Kev 코드](https://github.com/jaredpalmer/kev/blob/main/kev/model.py), [Clef 공식 설명](https://blog.cloudflare.com/clef-decision-models/), Drex v2.0·Sarvam-Prism 카드, Open-Jev README | Pointer와 joint schema routing, 질문·후보 격리, 배포 모델 사용과 새 head 학습 |
+| Encoder | Laya common.py, GLiNER2.5-Decide 공식 설명, Liquid Open d1 발표, GLiFormer 기반 jeff | Decoder와 encoder의 출발점, 명시적 답 조합 제약, 같은 제품군의 다른 backbone |
+| 임베딩 매칭 | [CLM heads.py](https://github.com/Contrastive-LM/CLM/blob/main/src/clm/heads.py), [Kakao 모델 카드](https://huggingface.co/kakaocorp/kanana-2-v-decide-3b-2611) | 분리 인코딩·projection·cosine similarity와 후보 표현 재사용 |
+| Diffusion | [djev](https://github.com/mmastrac/djev), [Drex DLM 카드](https://huggingface.co/nace-ai/drex-dlm) | Canvas slot의 토큰 readout과 Efficient-DLM + pointer head |
+| 제품·배포 | TypeSafe·OpenAI·Microsoft·Upstage·Inception·Snowflake·IBM·Parallel 공식 자료 | API 계약과 공개된 내부 구조, SQL·adapter·검색 통합을 각각 구분 |
+
+계산 예제의 logits는 설명을 위해 지정한 값으로 실제 모델 출력이나 성능 수치가 아니다. 공급자·개인의 학습 데이터와 벤치마크 수치를 새로 재현했다고 표시하지 않는다. 서비스 내부 head가 공개되지 않은 경우 인터페이스만으로 구조를 추정하지 않았다. 새 외부 코드·미디어·가중치는 복사하지 않았으므로 기존 제3자 자료의 라이선스 범위도 확대하지 않는다.
+
 ## 사례별 출처와 수정
 
 | 사례 | 기준 원문 | 대조 후 반영한 내용 |

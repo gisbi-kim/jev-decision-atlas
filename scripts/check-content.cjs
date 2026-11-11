@@ -1,8 +1,8 @@
 // Verify article rendering, local routes and editorial inline links without a browser.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..'),ctx=vm.createContext({window:{}});
-for(const name of ['data.js','articles.js','pokemon-local.js','intro.js','inline-links.js','article-view.js'])vm.runInContext(fs.readFileSync(path.join(root,name),'utf8'),ctx);
-const w=ctx.window,cases=[w.ATLAS_INTRO,...w.ATLAS_CASES],report=[];
+for(const name of ['data.js','articles.js','pokemon-local.js','intro.js','inline-links.js','comparison.js','article-view.js'])vm.runInContext(fs.readFileSync(path.join(root,name),'utf8'),ctx);
+const w=ctx.window,cases=[w.ATLAS_INTRO,...w.ATLAS_CASES,w.ATLAS_COMPARISON],report=[];
 for(const c of cases){
   const a=w.ATLAS_ARTICLES[c.id],html=w.ArticleView.render({...c,author:''},a,'');
   assert(html.includes(a.title));
@@ -19,7 +19,16 @@ for(const c of cases){
   for(const tag of html.matchAll(/<a class="inline-source"[^>]+>/g))if(tag[0].includes('href="https://'))assert(tag[0].includes('target="_blank" rel="noopener noreferrer"'));
   report.push({id:c.id,sections:a.sections.length,inlineLinks:links.length});
 }
-assert.equal(cases.length,9);
+assert.equal(w.ATLAS_CASES.length,8);
+assert.equal(cases.length,10);
+assert.equal(cases.at(-1).id,'implementations');
+const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
+assert(index.indexOf('class="tutorial-pocket comparison-pocket"')>index.indexOf('id="collection"'));
+assert(index.includes('href="#case/implementations" data-case="implementations"'));
+const comparison=w.ATLAS_ARTICLES.implementations;
+assert.equal(comparison.hideMedia,true);
+assert.equal(comparison.sections.length,12);
+for(const s of comparison.sections)for(const b of s.blocks)if(b.type==='table')for(const row of b.rows)assert.equal(row.length,b.headers.length,s.id);
 const local=path.join(root,'assets/pokemon-local');
 const manifest=JSON.parse(fs.readFileSync(path.join(local,'manifest.json'),'utf8'));
 const crypto=require('node:crypto');
