@@ -4,6 +4,14 @@ Jev 입문 튜토리얼을 먼저 학습하고 게임·웹·로봇 사례 8편, 
 
 [사이트 열기](https://gisbi-kim.github.io/jev-decision-atlas/) · [입문 강의](https://gisbi-kim.github.io/jev-decision-atlas/#case/intro) · [포켓몬 강의](https://gisbi-kim.github.io/jev-decision-atlas/#case/pokemon) · [구현 방식 비교](https://gisbi-kim.github.io/jev-decision-atlas/#case/implementations)
 
+## 한국어 / English
+
+메인 헤더와 글 상단의 `EN` / `한국어` 버튼으로 목록, 필터, 입문, 사례 8편과 마지막 비교 글을 전환한다. 본문·표·목차·풀이·도식·버튼 설명까지 영어판을 제공한다. 원본 코드와 실제 실행 기록은 그대로 유지한다.
+
+선택은 이 브라우저에 저장되며, 같은 사이트의 다른 탭에도 반영된다. `?lang=en` 또는 `?lang=ko`를 주소에 지정하면 저장된 설정보다 우선한다. 예: [영어 입문](https://gisbi-kim.github.io/jev-decision-atlas/?lang=en#case/intro). 글을 읽다가 전환해도 현재 글과 스크롤 위치, 펼친 풀이가 유지된다. 영어와 한국어로 사례를 검색할 수 있으며 영어 화면에서 저장한 SVG도 영어로 제공된다.
+
+영어 문장은 `translations/en.js`에 포함되어 있다. 방문자의 번역 API 호출이나 별도 키는 필요 없다. `i18n.js`가 원문과 영어판을 전환하며, 본문의 출처 링크를 보존한다. 원문을 수정하면 해당 번역도 갱신하고 `translations/manifest.json`의 원문 해시를 다시 기록한다. `node scripts/check-translations.cjs`로 누락·출처 링크·원문 변경을 검사한다.
+
 ## 실행
 
 이 폴더에서 다음 명령을 실행하고 http://127.0.0.1:8766 을 연다.
@@ -22,6 +30,7 @@ python -m http.server 8766 --bind 127.0.0.1
 
 ```sh
 node scripts/check-content.cjs
+node scripts/check-translations.cjs
 node scripts/export-diagrams.cjs
 ```
 
@@ -69,7 +78,7 @@ node scripts/export-diagrams.cjs
 ## 구성
 
 - 원본 플레이 영상과 화면을 앞세운 비대칭 프로젝트 목록
-- 분야 필터, 한국어 검색, `/` 검색 단축키
+- 분야 필터, 한국어·영어 검색, `/` 검색 단축키
 - 입문 12절과 사례 8편 56절, 비교 12절, 총 80절
 - 코드·기록 블록 60개: 구현 코드 발췌 27개, README 발췌 4개, 오프라인 예제 18개, SDK 활용 예제 2개, 로컬 실행 기록 9개
 - 구현 코드는 커밋·줄 번호에 연결하고, 각 글 머리와 관련 문단에 읽을 원문을 연결
@@ -138,6 +147,14 @@ node scripts/export-diagrams.cjs
 사이트는 강의 노트를 보여 주는 정적 페이지다. DOOM·Wikiracing은 공식 글의 문제 설정과 설명된 흐름을 해설하고 호출 횟수·경로 시간 계산을 덧붙인다. 나머지 6편은 프로젝트의 실제 코드와 README를 따라간다.
 
 ## 변경 이력
+
+### 2026-11-11 · 전체 한국어·영어 전환
+
+- 메인과 글 헤더에 언어 버튼을 추가하고 입문·8개 사례·비교 글 전체의 영어판을 묶어 제공한다.
+- 언어 선택 저장, URL 지정, 열린 탭 간 동기화, 영어 검색, 영어 SVG 저장을 지원한다.
+- 원본 코드·실행 기록·출처 링크를 보존하고, 언어 전환 시 글과 스크롤·펼친 풀이가 유지되도록 했다.
+- 기존 콘텐츠 검사와 전체 글의 왕복 전환·번역 누락·링크 검사로 확인한다.
+
 
 ### 2026-11-11 · 사용자가 지정한 원래 계열명으로 통일
 

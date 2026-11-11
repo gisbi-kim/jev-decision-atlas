@@ -30,7 +30,7 @@
   function watchVideos(){observer.disconnect();list.querySelectorAll('video').forEach(v=>observer.observe(v));}
   function render(){
     stopVideos(list);
-    const shown=cases.filter(c=>(filter==='all'||c.category===filter)&&[c.name,c.headline,c.summary,c.concept,c.intro,c.detail].join(' ').toLowerCase().includes(query.trim().toLowerCase()));
+    const shown=cases.filter(c=>(filter==='all'||c.category===filter)&&[c.name,c.headline,c.summary,c.concept,c.intro,c.detail].flatMap(value=>[value,window.AtlasI18n?.english(value)||value]).join(' ').toLowerCase().includes(query.trim().toLowerCase()));
     list.classList.toggle('filtered',filter!=='all'||!!query.trim());
     list.innerHTML=shown.map(c=>`<article class="project project-${c.id}"><a class="project-link" href="#case/${c.id}" data-case="${c.id}" aria-label="${esc(c.name)} 사례 읽기"><div class="project-media">${media(c)}<span class="media-label">${c.kind}</span><span class="open-label">사례 읽기 ↗</span></div><div class="project-meta"><span>${c.number} / ${c.category==='game'?'GAME':c.category==='web'?'WEB':'ROBOTICS'}</span><span>${esc(c.author)}</span></div><h2>${c.name}</h2><h3>${c.headline}</h3><p>${c.summary}</p></a><div class="project-foot"><span>${c.mode}</span><a href="${c.links[0].url}" target="_blank" rel="noopener">원문 ↗</a></div></article>`).join('');
     $('#empty-state').hidden=shown.length>0;$('#result-count').textContent=`8개 중 ${shown.length}개 사례`;watchVideos();
@@ -78,7 +78,7 @@
     const button=e.target.closest('[data-copy-code]');
     if(button){copy(ArticleView.codeAt(+button.dataset.copyCode),button);return;}
     const download=e.target.closest('[data-download-diagram]');
-    if(download){const item=ArticleView.diagramAt(+download.dataset.downloadDiagram);const url=URL.createObjectURL(new Blob([item.svg],{type:'image/svg+xml;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=item.name;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('#reader-status').textContent='파이프라인 SVG를 저장합니다.';}
+    if(download){const item=ArticleView.diagramAt(+download.dataset.downloadDiagram);const url=URL.createObjectURL(new Blob([window.AtlasI18n?.html(item.svg)||item.svg],{type:'image/svg+xml;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=window.AtlasI18n?.language==='en'?item.name.replace('.svg','-en.svg'):item.name;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('#reader-status').textContent='파이프라인 SVG를 저장합니다.';}
   });
   let scrollQueued=false;
   dialog.addEventListener('scroll',()=>{if(scrollQueued)return;scrollQueued=true;requestAnimationFrame(()=>{scrollQueued=false;const total=dialog.scrollHeight-dialog.clientHeight;$('#reading-progress').value=total>0?Math.min(100,dialog.scrollTop/total*100):100;const sections=[...dialog.querySelectorAll('.blog-section')];let current=sections[0]?.id;for(const s of sections){if(s.getBoundingClientRect().top<=dialog.getBoundingClientRect().top+145)current=s.id;}dialog.querySelectorAll('[data-jump]').forEach(b=>{if(b.dataset.jump===current)b.setAttribute('aria-current','location');else b.removeAttribute('aria-current');});});},{passive:true});

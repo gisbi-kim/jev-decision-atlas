@@ -1,0 +1,17 @@
+{
+  "language": "en",
+  "strings": 2008,
+  "linkedParagraphs": 126,
+  "sourceCodeAndExecutionRecords": "preserved",
+  "sources": {
+    "data.js": "ee36020aa3fc933ac59e1ff21403a98c9db9c3825e20d23730bcb89080c97fd7",
+    "articles.js": "c17f84e13788b3d3a7675cf0a590a6460ab99951949d47b8225f76bfc083acff",
+    "pokemon-local.js": "5d834fdab56233bbec71c78281b96dd54241e44c62065b9e506c4214ef0b46ba",
+    "intro.js": "19962ab970b88f7740b735acb02fb0ee9e902ce9651c7551a0e937c43a57b78c",
+    "inline-links.js": "7974cdb523ade252fd3dba9bd6a1c70f687ed7734c2a9562cd4ac4bbaf69ae59",
+    "comparison.js": "8a03a70274c3f5e95979fab848a185d6d32ccee7f78d17c0aae278d1a46d9d43",
+    "article-view.js": "74b2f3f2c1b02138dcfbaafb0ba3ba3f5daebc980af8293fe6de9e44f21310a9",
+    "app.js": "f661e7e260b7a4b9e780fe4fd5d6eee2afa7e95b720f7d5ed9a6fac5c258fd89",
+    "index.html": "b47d483554d5bff5644b5e8fa50f114d07d8eb6458156744acb9cb7d19cf5a5d"
+  }
+}
