@@ -33,9 +33,9 @@ const architecture=comparison.sections.flatMap(s=>s.blocks).find(b=>b.layout==='
 assert.equal(architecture.rows.length,5);
 for(const row of architecture.rows)assert.equal(row.cells.length,4,row.label);
 const methodTitles=comparison.sections.slice(2,7).map(s=>s.title);
+assert.deepEqual(Array.from(methodTitles),['① 문자열 생성','② Vocabulary readout','③ 별도 decision head','④ Encoder 기반 판단','⑤ 임베딩 간 매칭']);
 assert.deepEqual(Array.from(architecture.rows,r=>r.label),Array.from(methodTitles));
-const methodTable=comparison.sections[1].blocks.find(b=>b.type==='table');
-assert.deepEqual(Array.from(methodTable.rows,r=>r[0]),Array.from(methodTitles));
+for(const methodTable of comparison.sections[1].blocks.filter(b=>b.type==='table'))assert.deepEqual(Array.from(methodTable.rows,r=>r[0]),Array.from(methodTitles));
 w.ArticleView.render(w.ATLAS_COMPARISON,comparison,'');
 const architectureSvg=w.ArticleView.diagramAt(0);
 assert.equal(architectureSvg.name,'implementations-architecture.svg');
