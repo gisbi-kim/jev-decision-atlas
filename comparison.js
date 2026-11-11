@@ -42,245 +42,671 @@
   const p = (text, refs = []) => ({ type: 'p', text, links: refs.map(([text, key]) => ({ text, url: sources[key].url })) });
   const table = (headers, rows) => ({ type: 'table', headers, rows });
   window.ATLAS_COMPARISON = {
-    id: 'implementations', number: '09', name: '구현 방식 비교', readerLabel: 'COMPARISON 09',
-    author: '공개 코드·공식 문서 비교', authorLabel: '자료', originLabel: '관련 실험',
-    input: '같은 상태·질문·행동 후보', outputLabel: '모델이 반환하는 값',
-    output: '생성한 이름 · 토큰 점수 · head 점수 · 임베딩 유사도',
-    executor: '답 검증 · 행동 실행 · 결과 기록', links: []
+    id: "implementations",
+    number: "09",
+    name: "구현 방식 비교",
+    readerLabel: "COMPARISON 09",
+    author: "공개 코드·공식 문서 비교",
+    authorLabel: "자료",
+    originLabel: "관련 실험",
+    input: "같은 상태·질문·행동 후보",
+    outputLabel: "모델이 반환하는 값",
+    output: "생성한 이름 · 토큰 점수 · head 점수 · 임베딩 유사도",
+    executor: "답 검증 · 행동 실행 · 결과 기록",
+    links: []
   };
   window.ATLAS_ARTICLES.implementations = {
-    title: 'Jev를 바꾸면, 판단은 어디서 나올까?',
-    lead: '포켓몬의 로컬 실행에서는 Qwen을 추가로 학습하지 않고 행동을 골랐다. 반면 MNIST 실험에서는 Qwen에 Clef 방식 decision head와 LoRA를 붙여 학습했다. 둘 다 후보 하나를 고르지만, 답을 계산하는 경로는 다르다. 마지막 글에서는 이 차이에서 출발해 공개된 회사·개인 구현을 다섯 계열로 비교한다.',
-    origin: sources.guide, minutes: 20, hideMedia: true,
-    refs: Object.entries(sources).filter(([key]) => key !== 'guide').map(([, source]) => source),
+    title: "행동을 고르는 다섯 가지 구현: 무엇을 읽고, 어디를 학습할까?",
+    lead: "로컬 포켓몬은 Qwen이 써 준 행동 이름을 읽어 실행했다. MNIST 실험은 Qwen에 새 Clef 방식 head를 붙여 행동별 점수를 계산했다. 이 글에서는 입력이 답으로 바뀌는 과정을 다섯 방식으로 비교하고, 각 방식에서 기존 모델을 그대로 쓸 수 있는 때와 학습데이터가 필요한 때를 살펴본다.",
+    origin: sources.guide,
+    minutes: 25,
+    hideMedia: true,
+    refs: [
+      sources.adapter,
+      sources.mnist,
+      sources.anyjev,
+      sources.anyjevPaper,
+      sources.semif,
+      sources.simple,
+      sources.sglang,
+      sources.nimble,
+      sources.tev,
+      sources.pplx,
+      sources.baseten,
+      sources.h2o,
+      sources.glide,
+      sources.inner,
+      sources.kev,
+      sources.clef,
+      sources.drex,
+      sources.prism,
+      sources.openjev,
+      sources.laya,
+      sources.gliner,
+      sources.liquid,
+      sources.jeff,
+      sources.clm,
+      sources.kanana,
+      sources.djev,
+      sources.drexDlm,
+      sources.jev,
+      sources.openai,
+      sources.microsoft,
+      sources.upstage,
+      sources.inception,
+      sources.snowflake,
+      sources.ibm,
+      sources.parallel
+    ],
     sections: [
       {
-        id: 'comparison-start', title: '포켓몬은 학습 없이 골랐는데, MNIST는 왜 학습했을까?',
+        id: "comparison-start",
+        title: "포켓몬은 그대로 썼는데, MNIST는 왜 학습했을까?",
         blocks: [
-          p('로컬 포켓몬의 전투 기록에는 적의 남은 체력이 33이고, EMBER의 예상 피해가 41~49라는 정보가 이미 들어 있다. 프로그램은 이 상태와 행동 후보를 Qwen에 보내고, Qwen은 {"decision":"Use EMBER"}를 반환한다. 프로그램은 JSON을 읽어 후보에 있는 이름인지 확인한 뒤 기술을 실행한다. 이 응답에는 후보별 확률이 없다.'),
-          { type: 'case-links', items: [{ id: 'pokemon', label: '01 · 포켓몬의 실제 입력과 응답', text: '전투·이동 프롬프트와 기억이 다음 판단에 들어가는 과정을 다시 확인한다.' }] },
-          p('MNIST 실험은 다른 출력 경로를 사용했다. Qwen3.5-0.8B가 이미지와 현재 숫자를 읽으면, 새로 붙인 Clef 방식 head가 −1·STOP·+1의 점수를 만든다. 기반 모델이 언어와 이미지를 학습했다는 사실만으로 새 head까지 학습된 것은 아니다. 이 실험에서는 정답 행동 데이터로 head와 LoRA를 함께 학습했다.', [['MNIST 실험', 'mnist']]),
-          table(['구분', '로컬 포켓몬', 'MNIST 실험'], [
-            ['사용한 경로', 'Qwen3.5:9b의 기존 언어 생성', 'Qwen3.5-0.8B + Clef 방식 head'],
-            ['프로그램이 받는 값', 'JSON에 담긴 행동 이름 하나', '행동별 점수에서 구한 확률과 선택'],
-            ['이번 과제의 추가 학습', '없음', '정답 행동으로 head와 LoRA 학습'],
-            ['주변 코드의 역할', '상태·목표·후보·피해 설명을 만들고 조작 실행', '이미지·현재 숫자를 구성하고 선택한 이동 실행']
-          ]),
-          p('따라서 추가 학습 없이 사용했다는 말은 아무 학습도 하지 않은 모델이라는 뜻이 아니다. 이미 학습된 어느 부분을 그대로 쓰고, 어떤 출력 경로를 새로 만들었는지를 살펴야 한다. 두 실험은 모델 크기, 이미지 입력, 후보 설명과 주변 코드도 다르므로 성공 여부만으로 구조의 우열을 비교할 수 없다.')
-        ]
-      },
-      {
-        id: 'comparison-families', title: '같은 선택을 만드는 다섯 가지 계산 경로',
-        blocks: [
-          p('공격·회복·도주 중 하나를 고른다고 하자. 어떤 구현은 attack이라는 문자열을 쓰고, 어떤 구현은 A라는 토큰의 점수를 읽는다. 다른 구현은 후보의 내부 표현이나 별도로 만든 벡터를 비교한다. 아래 분류는 2026년 11월 11일 확인한 공개 문서·모델 카드·코드를 계산 경로에 따라 묶은 것이다. 서로 완전히 배타적인 이론 분류는 아니며, 한 프로젝트에 여러 경로가 함께 있을 수 있다.'),
+          p("로컬 포켓몬의 전투 입력에는 적의 체력이 33이고 EMBER의 예상 피해가 41~49라는 정보가 들어 있었다. Qwen은 이 설명과 행동 후보를 읽고 {\"decision\":\"Use EMBER\"}라는 답을 생성했다. 실행 프로그램은 JSON에서 행동 이름을 꺼내 후보에 있는지 확인하고 기술을 사용했다. 이때 프로그램이 받은 것은 행동 이름 하나이며, 후보별 확률은 아니었다."),
           {
-            type: 'diagram', layout: 'architecture-comparison',
-            title: '입력 → backbone → head / readout → 출력',
-            caption: '같은 네 열로 다섯 구현을 비교한 개념도다. ①은 토큰 생성을 반복하고, ②는 답 위치에서 후보 토큰 점수를 읽는다. ③·④는 별도 head가 후보를 채점하며, ⑤는 두 갈래로 만든 임베딩을 비교한다. 빨강은 후보 점수를 계산하는 위치로, 새 학습이 필요한 부분을 뜻하지 않는다. 좁은 화면에서는 도식 안을 가로로 스크롤할 수 있다.',
-            rows: [
+            type: "case-links",
+            items: [
               {
-                label: '① 문자열 생성', example: '포켓몬 Qwen', repeat: true,
-                cells: [
-                  { kind: 'world', title: '상태 · 질문 · 후보', lines: ['목표와 행동 후보를 구성'] },
-                  { kind: 'llm', title: 'Decoder backbone', lines: ['입력과 생성 토큰을 읽음'] },
-                  { kind: 'code', title: '기존 LM head', lines: ['다음 토큰 점수', '토큰 선택을 반복'] },
-                  { kind: 'code', title: 'JSON / 행동 이름', lines: ['문자열을 완성한 뒤', '파싱 · 후보 검증'] }
-                ]
-              },
-              {
-                label: '② 토큰 점수', example: 'AnyJev · Nimble',
-                cells: [
-                  { kind: 'world', title: '상태 · 질문 · 후보', lines: ['후보를 A · B · C로 대응'] },
-                  { kind: 'llm', title: 'Decoder backbone', lines: ['답 위치의 hidden state'] },
-                  { kind: 'model', title: 'LM head / readout', lines: ['후보 토큰의 logits 추출', '축소 readout도 가능'] },
-                  { kind: 'code', title: '후보 확률 · 선택', lines: ['후보 안에서 softmax', '답 문자열 생성 생략'] }
-                ]
-              },
-              {
-                label: '③ 별도 head', example: 'Kev · Clef',
-                cells: [
-                  { kind: 'world', title: '상태 · 질문 · 후보', lines: ['질문과 후보 위치도 전달'] },
-                  { kind: 'llm', title: 'Decoder backbone', lines: ['입력의 hidden states'] },
-                  { kind: 'model', title: '별도 decision head', lines: ['Pointer / joint schema', '후보 표현 · 근거로 채점'] },
-                  { kind: 'code', title: '후보 확률 · 선택', lines: ['후보 logits → softmax', '선택 · yes/no · 점수'] }
-                ]
-              },
-              {
-                label: '④ Encoder', example: 'Laya · GLiNER',
-                cells: [
-                  { kind: 'world', title: '상태 · 질문 · 후보', lines: ['Text와 schema를 구성'] },
-                  { kind: 'vision', title: '양방향 encoder', lines: ['상태·질문·후보 함께 읽기'] },
-                  { kind: 'model', title: 'Typed decision head', lines: ['후보 marker 표현 채점', '필요시 답 조합 제약'] },
-                  { kind: 'code', title: '확률 · 허용된 답', lines: ['선택 · yes/no · 점수', '규칙을 적용하는 구현도 있음'] }
-                ]
-              },
-              {
-                label: '⑤ 임베딩 매칭', example: 'CLM · Kanana', split: true,
-                cells: [
-                  { kind: 'world', title: '분리된 입력', branches: ['상태 + 질문', '후보 각각'] },
-                  { kind: 'llm', title: '분리 인코딩', branches: ['상태·질문 → 벡터 u', '후보 각각 → 벡터 v'] },
-                  { kind: 'model', title: '임베딩 유사도', lines: ['선택적 projection 후', 'cosine similarity'] },
-                  { kind: 'code', title: '후보 확률 · 선택', lines: ['유사도 → softmax', '후보 벡터 재사용 가능'] }
-                ]
+                id: "pokemon",
+                label: "01 · 포켓몬의 실제 입력과 응답",
+                text: "전투·이동 프롬프트와 기억이 다음 판단에 들어가는 과정을 다시 확인한다."
               }
             ]
           },
-          p('①과 ②는 같은 LM head에서 출발할 수 있다. 갈리는 지점은 점수로 토큰을 계속 생성하는지, 필요한 후보 점수만 읽고 멈추는지다. ③과 ④는 별도 head를 사용하지만 backbone이 다르다. ⑤의 두 인코딩 상자는 가중치가 서로 다르다는 뜻은 아니며, 같은 backbone을 따로 호출할 수도 있다. CLM의 projection head와 Kanana의 임베딩 비교는 뒤에서 구분한다.'),
-          table(['계열', '답을 계산하는 경로', '공개 사례'], [
-            ['① 문자열 생성', 'LLM → 답 문자열 → 파싱·검증', '로컬 포켓몬 Qwen · TypeSafe LLM adapter'],
-            ['② Vocabulary readout', '답 위치의 후보 토큰 점수 → softmax', 'AnyJev · SemIf · Nimble · Perplexity Decider'],
-            ['③ 별도 decision head', 'Backbone의 hidden states → 후보 채점 head', 'Kev · Clef · Drex · Sarvam-Prism'],
-            ['④ Encoder 기반 판단', '양방향 encoder가 상태·질문·후보를 읽고 채점', 'Laya · GLiNER2.5-Decide · d1-omni'],
-            ['⑤ 임베딩 간 매칭', '상태·질문 벡터와 후보 벡터의 유사도 비교', 'CLM · Kanana-2-v-decide']
+          p("MNIST 실험은 ③ 별도 decision head 방식이다. 이미지에 적힌 목표 숫자와 현재 숫자를 Qwen3.5-0.8B에 넣고, 그 내부 표현을 새 Clef 방식 head에 전달했다. head는 −1, 0(STOP), +1의 점수를 만들고, softmax가 이 점수를 세 행동의 확률로 바꾼다. 이미지가 7이고 현재 숫자가 3이면 정답 행동은 +1이다.", [["MNIST 실험","mnist"]]),
+          p("여기서 새 head는 처음부터 이 문제를 풀 줄 아는 상태가 아니었다. 그래서 MNIST 이미지의 정답 숫자로 올바른 행동을 계산해 학습데이터를 만들었다. Qwen의 기존 가중치는 고정하고, 본체에 끼운 LoRA와 새 head를 학습했다. LoRA는 기존 가중치를 직접 바꾸는 대신 작은 보조 행렬을 학습해 모델 계산을 조정하는 방법이다."),
+          table(["구분","로컬 포켓몬","직접 학습한 MNIST"], [
+            [
+              "다섯 방식 중 위치",
+              "① 행동 이름을 문자열로 생성",
+              "③ 별도 head로 행동을 채점"
+            ],
+            [
+              "사용 모델",
+              "Qwen3.5:9b의 기존 생성 기능",
+              "Qwen3.5-0.8B + 새 Clef 방식 head"
+            ],
+            [
+              "직접 학습한 부분",
+              "없음",
+              "LoRA + 새 head; 기존 본체 가중치는 고정"
+            ],
+            [
+              "직접 준비한 학습데이터",
+              "없음",
+              "이미지·현재 숫자·정답 행동"
+            ],
+            [
+              "프로그램이 받는 값",
+              "JSON의 행동 이름",
+              "세 행동의 확률과 선택"
+            ]
           ]),
-          p('학습 여부는 이 표와 별개의 축이다. 같은 vocabulary readout을 그대로 사용할 수도 있고, 정답 데이터로 LoRA나 전체 가중치를 조정할 수도 있다. 배포된 decision model의 head가 이미 학습되어 있다면 사용자는 자기 데이터로 다시 학습하지 않고 추론부터 시작할 수 있다.')
+          {
+            type: "note",
+            text: "MNIST에서 사용한 것은 Cloudflare가 배포한 Clef 모델 자체가 아니라, 일반 Qwen에 Clef 방식 head를 새로 붙인 모델이다. 이미 학습된 Clef 모델을 내려받아 쓰는 경우에는 새 head를 처음부터 학습하는 과정이 필요하지 않다."
+          },
+          p("포켓몬도 이미 학습된 Qwen의 능력을 사용했다. 여기서 “학습 없이”는 이번 포켓몬 과제에 맞춘 추가 학습을 하지 않았다는 뜻이다. 두 실험은 모델 크기, 입력 형식, 행동 설명도 다르므로 어느 쪽이 성공했는지만으로 구조의 우열을 정할 수는 없다.")
         ]
       },
       {
-        id: 'comparison-generation', title: '① 행동 이름을 생성하고 코드가 읽는다',
+        id: "comparison-families",
+        title: "다섯 방식은 어디서 갈리고, 어디를 학습할까?",
         blocks: [
-          p('포켓몬에서 Use EMBER를 골랐다는 결과는 JSON 안의 문자열로 왔다. 모델 내부에서는 다음 토큰의 점수를 계산하며 이 문자열을 이어 쓴다. 하지만 호출한 프로그램은 그 중간 점수를 읽지 않고 완성된 답을 받는다. JSON schema로 허용한 이름을 제한해도, 이 생성 경로가 별도의 decision head로 바뀌는 것은 아니다.'),
-          p('TypeSafe의 LLM adapter도 일반 LLM API를 System One 형태로 연결한다. 선택 하나를 생성하는 discrete 모드와 후보별 확률 숫자를 생성하는 probabilities 모드가 있다. 이때 모델이 텍스트로 써 준 0.9는 내부 후보 logits에서 계산한 0.9와 구분해야 한다.', [['LLM adapter', 'adapter']]),
-          p('이 방법은 기존 모델과 API로 행동 선택을 빠르게 연결하기 좋다. 실행 코드는 답을 파싱하고 후보 이름과 값의 범위를 검증한다. 형식에 맞는 공격을 골랐어도 공격이 좋은 판단이었는지는 게임의 다음 상태를 보고 평가해야 한다.')
+          p("다섯 방식의 차이는 “입력을 읽은 뒤 무엇으로 후보 점수를 만드는가”에 있다. 아래 그림의 backbone은 입력을 읽어 숫자 배열로 표현하는 모델 본체다. head는 그 표현을 받아 출력 점수를 만드는 마지막 계산 부분이다. LM head는 언어 모델이 다음 토큰(글자·단어 조각)의 점수를 내는 기존 출력층이다. 이 층을 그대로 쓰는 방식도 있고, 후보를 채점하는 head를 새로 붙이는 방식도 있다."),
+          {
+            type: "diagram",
+            layout: "architecture-comparison",
+            title: "다섯 계산 경로와 학습 위치 · MNIST는 ③",
+            caption: "위쪽 상자는 답을 계산하는 흐름, 아래 배지는 사용하거나 학습하는 부분이다. ①은 로컬 포켓몬, ③은 직접 학습한 MNIST 설정을 표시했다. ②·④·⑤는 완성된 모델을 사용하는 경우와 추가 학습을 선택하는 경우를 구분했다. 초록 배지는 학습, 회색 배지는 고정, 초록 테두리는 선택 사항이다. 학습데이터가 필요 없다는 말은 가중치를 그대로 사용한다는 뜻이며, 성능을 확인할 평가 자료는 따로 필요하다.",
+            rows: [
+              {
+                label: "① 문자열 생성",
+                example: "포켓몬 Qwen",
+                repeat: true,
+                cells: [
+                  {
+                    kind: "world",
+                    title: "상태 · 질문 · 후보",
+                    lines: ["목표와 행동 후보를 구성"]
+                  },
+                  {
+                    kind: "llm",
+                    title: "생성 모델 본체",
+                    lines: ["Qwen의 입력 표현 계산"]
+                  },
+                  {
+                    kind: "code",
+                    title: "기존 LM head",
+                    lines: ["다음 토큰 점수","토큰 선택을 반복"]
+                  },
+                  {
+                    kind: "code",
+                    title: "JSON / 행동 이름",
+                    lines: ["문자열을 완성한 뒤","파싱 · 후보 검증"]
+                  }
+                ],
+                training: {
+                  backbone: [["기반 고정","fixed"]],
+                  head: [["기존 head 고정","fixed"]],
+                  data: ["포켓몬: 학습데이터 불필요","기존 모델 그대로 사용"]
+                }
+              },
+              {
+                label: "② 토큰 점수",
+                example: "AnyJev · Nimble",
+                cells: [
+                  {
+                    kind: "world",
+                    title: "상태 · 질문 · 후보",
+                    lines: ["후보를 A · B · C로 대응"]
+                  },
+                  {
+                    kind: "llm",
+                    title: "생성 모델 본체",
+                    lines: ["답을 시작할 위치의 표현"]
+                  },
+                  {
+                    kind: "model",
+                    title: "LM head / readout",
+                    lines: ["A·B·C 토큰 점수만 읽기","필요한 행만 남길 수도 있음"]
+                  },
+                  {
+                    kind: "code",
+                    title: "후보 확률 · 선택",
+                    lines: ["후보 안에서 softmax","답 문자열 생성 생략"]
+                  }
+                ],
+                training: {
+                  backbone: [["기반 고정","fixed"],["LoRA 선택","optional"]],
+                  head: [["기존 head 사용","fixed"]],
+                  data: ["그대로 사용: 불필요","추가 학습 시: 필요"]
+                }
+              },
+              {
+                label: "③ 별도 head",
+                example: "MNIST · Clef 방식",
+                cells: [
+                  {
+                    kind: "world",
+                    title: "MNIST 이미지 · 상태",
+                    lines: ["현재 숫자 · −1 / 0 / +1"]
+                  },
+                  {
+                    kind: "llm",
+                    title: "Qwen3.5-0.8B",
+                    lines: ["이미지·텍스트 표현 계산"]
+                  },
+                  {
+                    kind: "model",
+                    title: "Clef 방식 새 head",
+                    lines: ["입력에서 판단 근거를 모아","행동 3개의 점수 계산"]
+                  },
+                  {
+                    kind: "code",
+                    title: "후보 확률 · 선택",
+                    lines: ["행동 점수 → softmax","−1 / 0(STOP) / +1"]
+                  }
+                ],
+                training: {
+                  backbone: [["기반 고정","fixed"],["LoRA 학습","train"]],
+                  head: [["새 head 학습","train"]],
+                  data: ["MNIST: 정답 행동 필요","완성된 Clef 사용: 불필요"]
+                },
+                highlight: true
+              },
+              {
+                label: "④ Encoder",
+                example: "Laya · GLiNER",
+                cells: [
+                  {
+                    kind: "world",
+                    title: "상태 · 질문 · 후보",
+                    lines: ["읽을 내용과 질문·후보"]
+                  },
+                  {
+                    kind: "vision",
+                    title: "양방향 encoder",
+                    lines: ["앞뒤 문맥을 함께 읽음"]
+                  },
+                  {
+                    kind: "model",
+                    title: "후보 채점 head",
+                    lines: ["질문 타입에 맞게 채점","답 조합 규칙도 적용 가능"]
+                  },
+                  {
+                    kind: "code",
+                    title: "확률 · 허용된 답",
+                    lines: ["선택 · yes/no · 점수","규칙을 적용하는 구현도 있음"]
+                  }
+                ],
+                training: {
+                  backbone: [["기반 고정","fixed"],["튜닝 선택","optional"]],
+                  head: [["학습된 head 고정","fixed"]],
+                  data: ["완성 모델 사용: 불필요","새 head·튜닝 시: 필요"]
+                }
+              },
+              {
+                label: "⑤ 임베딩 매칭",
+                example: "CLM · Kanana",
+                split: true,
+                cells: [
+                  {
+                    kind: "world",
+                    title: "분리된 입력",
+                    branches: ["상태 + 질문","후보 각각"]
+                  },
+                  {
+                    kind: "llm",
+                    title: "분리 인코딩",
+                    branches: ["상태·질문 → 벡터 u","후보 각각 → 벡터 v"]
+                  },
+                  {
+                    kind: "model",
+                    title: "임베딩 유사도",
+                    lines: ["필요시 벡터 변환층 적용","두 벡터의 방향 비교"]
+                  },
+                  {
+                    kind: "code",
+                    title: "후보 확률 · 선택",
+                    lines: ["유사도 → softmax","후보 벡터 재사용 가능"]
+                  }
+                ],
+                training: {
+                  backbone: [["기반 고정","fixed"],["튜닝 선택","optional"]],
+                  head: [["기존 벡터 사용","fixed"],["새 층 학습","optional"]],
+                  data: ["완성 모델 사용: 불필요","직접 추가 학습 시: 필요"]
+                }
+              }
+            ]
+          },
+          p("①은 기존 LM head로 토큰을 하나씩 골라 행동 이름을 완성한다. ②는 같은 LM head에서 A·B·C에 해당하는 점수만 읽고 멈춘다. ③은 별도 head가 본체의 내부 표현으로 후보를 채점한다. ④도 별도 head를 쓰지만, 본체가 앞뒤 문맥을 함께 읽는 encoder다. ⑤는 상태와 후보를 따로 벡터로 만든 다음 두 벡터를 비교한다. 한 프로젝트가 여러 방식을 지원할 수도 있다."),
+          table(["방식","기존 모델을 그대로 사용할 때","내가 학습데이터를 준비하는 때"], [
+            [
+              "① 문자열 생성",
+              "기존 Qwen 등으로 행동 이름 생성; 본체·LM head 고정",
+              "행동 선택을 더 잘하도록 직접 추가 학습할 때"
+            ],
+            [
+              "② 토큰 점수 읽기",
+              "기존 모델에서 후보 토큰 점수만 읽기; 새 층 불필요",
+              "Nimble처럼 LoRA 등을 직접 학습할 때"
+            ],
+            [
+              "③ 별도 head",
+              "head까지 학습된 Clef·Kev 등을 사용",
+              "MNIST처럼 새 head를 붙이거나 기존 모델을 추가 학습할 때"
+            ],
+            [
+              "④ Encoder + head",
+              "head까지 학습된 Laya·GLiNER 등을 사용",
+              "새 head를 만들거나 업무에 맞게 encoder·head를 조정할 때"
+            ],
+            [
+              "⑤ 임베딩 비교",
+              "학습된 임베딩 모델의 벡터를 비교",
+              "상태·후보의 짝으로 모델이나 새 벡터 변환층을 학습할 때"
+            ]
+          ]),
+          p("따라서 “③이면 무조건 사용자가 학습해야 한다”는 뜻은 아니다. 사용자가 학습데이터를 준비해야 하는지는 새로 학습할 가중치가 있는지에 달려 있다. 이미 학습된 모델과 head를 그대로 쓰면 추론부터 시작할 수 있다. 반면 새 head, LoRA, 전체 본체 중 어느 것이든 직접 학습하려면 정답 행동이나 보상처럼 맞고 틀림을 알려 줄 자료가 필요하다."),
+          {
+            type: "note",
+            text: "본체 고정과 LoRA 학습은 함께 성립한다. MNIST에서는 원래 Qwen 가중치를 고정한 채 LoRA의 보조 행렬만 바꿨다. 학습 중 오차는 본체의 계산을 거슬러 LoRA까지 전달되지만, 원래 가중치는 갱신하지 않는다."
+          },
+          p("이 비교는 2026년 11월 11일 확인한 공개 문서와 코드를 바탕으로 한다. 아래 절에서는 각 방식의 계산과 공개 사례를 차례로 살펴본다.")
         ]
       },
       {
-        id: 'comparison-vocabulary', title: '② 답 위치의 A·B·C 점수를 바로 읽는다',
+        id: "comparison-generation",
+        title: "① 행동 이름을 생성한 뒤 프로그램이 읽는다",
         blocks: [
-          p('공격을 A, 회복을 B, 도주를 C에 대응시키고 답을 고르게 한다. 답이 시작되는 위치에서 vocabulary 전체의 logits를 얻은 뒤 A·B·C의 점수만 추출해 softmax를 적용할 수 있다. 답 문자열을 끝까지 생성할 필요는 없다. 다음은 실제 모델 출력이 아니라 softmax 연산만 확인하는 계산 예제다.'),
-          { type: 'code', lang: 'python', kind: '직접 계산', label: '후보 토큰 점수를 선택 확률로 바꾸기', run: 'offline', code: 'from math import exp\n\n# 모델을 호출하지 않는 설명용 logits\nlogits = {"A": 2.0, "B": 0.5, "C": -1.0}\npeak = max(logits.values())\nweights = {key: exp(value - peak) for key, value in logits.items()}\nprobabilities = {key: value / sum(weights.values())\n                 for key, value in weights.items()}\nprint({key: round(value, 3) for key, value in probabilities.items()})\nassert abs(sum(probabilities.values()) - 1) < 1e-9\nassert max(probabilities, key=probabilities.get) == "A"' },
-          p('단, A·B·C가 실제 답 문맥에서 각각 하나의 서로 다른 토큰인지 확인해야 한다. Use EMBER처럼 여러 토큰인 후보의 첫 토큰만 읽으면 전체 후보의 점수를 얻지 못한다. 짧은 답 코드를 사용하거나 후보 문자열 전체의 조건부 확률을 계산하는 별도 방식이 필요하다. 후보 점수를 정규화한 확률은 공격의 실제 성공률과도 다르다.'),
-          table(['구현', '학습과 readout', '추가 계산·처리'], [
-            ['Nokia Applied Research · AnyJev', '기존 instruction LLM의 답 토큰 점수', '후보 순서 회전과 label prior 보정'],
-            ['TheoLeeCJ · SemIf', '기존 공개 모델의 후보 logits', '공통 상태 재사용 · workload별 온도 보정'],
-            ['Featherless AI · simple-jev', '다음 토큰 logits로 typed answer 구성', '공통 prefix의 KV cache 재사용'],
-            ['ekzhang · openjev-sglang', 'SGLang의 지정 토큰 logprob readout', 'Prefix cache와 질문 suffix 처리'],
-            ['Bespoke Labs · Nimble', 'Qwen에 LoRA 학습 후 답 코드 점수 읽기', '후보 logits의 cross-entropy 학습'],
-            ['Together AI · Tev1', '기존 LM head로 정답 글자 SFT', '공개 클라이언트는 한 글자 답을 선택 이름으로 변환'],
-            ['Perplexity · Decider v1.2', '255개 답 코드의 축소 readout', '여러 질문 marker에서 공동 readout'],
-            ['Baseten · Mammoth-1 / Elephant-1', 'LM head의 후보 글자 logits', '전체 언어 가중치 학습 · block-bidirectional attention'],
-            ['H2O.ai · H2O-Lightning', '학습한 모델의 answer-token 점수', 'Causal·bidirectional reading 경로'],
-            ['Fastino · GLiDE-27B 공개 모델', '질문별 255-way readout', '질문들을 microbatch로 함께 채점']
-          ]),
-          p('추가 학습 없는 예는 AnyJev, SemIf, simple-jev, openjev-sglang에서 확인할 수 있다. AnyJev의 순서 보정은 여러 회전을 읽으므로 한 번의 raw readout보다 호출과 연산이 늘어난다. 보정한 전체 판단까지 항상 한 번의 forward라고 부를 수는 없다.', [['AnyJev', 'anyjev'], ['SemIf', 'semif'], ['simple-jev', 'simple'], ['openjev-sglang', 'sglang']]),
-          p('학습한 예는 Nimble과 Tev1의 recipe에 설명되어 있다. Perplexity Decider의 축소 readout도 vocabulary의 답 코드에 대응하는 행을 사용한다. 별도 readout 파일이 있다는 이유만으로 복잡한 routing head라고 볼 수는 없다.', [['Nimble', 'nimble'], ['Tev1', 'tev'], ['Perplexity Decider', 'pplx']]),
-          p('Baseten의 기술 보고서는 후보 글자 logits와 attention 변경을 설명한다. H2O-Lightning은 같은 가중치의 reading mode를 구분하며, GLiDE-27B 공개 카드는 255-way readout을 명시한다. Releasing the Inner Jev 논문은 학습 전 글자 logits baseline과 LoRA·축소 head 학습을 함께 비교한다.', [['Baseten의 기술 보고서', 'baseten'], ['H2O-Lightning', 'h2o'], ['GLiDE-27B', 'glide'], ['Releasing the Inner Jev', 'inner']])
+          p("포켓몬의 Qwen은 Use EMBER라는 행동 이름을 JSON 안에 써 주었다. 모델 내부에서는 다음 토큰의 점수를 계산하고 하나를 고르는 일을 반복한다. 호출한 프로그램은 이 중간 점수 대신 완성된 문자열을 받는다. JSON schema로 허용할 이름을 제한할 수 있지만, 답을 문자열로 생성하는 과정은 그대로다."),
+          p("TypeSafe의 LLM adapter도 일반 LLM을 System One API 형식으로 연결한다. discrete 모드는 선택 하나를 생성하고, probabilities 모드는 후보별 확률 숫자를 답에 써 준다. 모델이 답변에 “0.9”라고 쓴 값은 프로그램이 내부 후보 점수에서 직접 계산한 확률과 다르다. 숫자가 어떻게 만들어졌는지를 확인해야 한다.", [["LLM adapter","adapter"]]),
+          p("기존 모델을 그대로 사용한다면 별도 학습데이터가 필요하지 않다. 프로그램은 JSON이 올바른지, 행동 이름이 후보에 있는지 검사하면 된다. 그 행동이 실제로 유리했는지는 실행 뒤의 게임 상태로 평가한다. 허용된 형식의 답을 만들었다는 것만으로 좋은 행동을 골랐다고 볼 수는 없다.")
         ]
       },
       {
-        id: 'comparison-heads', title: '③ Hidden states에서 후보를 직접 채점한다',
+        id: "comparison-vocabulary",
+        title: "② A·B·C 토큰의 점수를 읽어 후보 확률을 만든다",
         blocks: [
-          p('공격 후보의 설명이 길어져도 한 토큰으로 바꿀 필요가 없는 설계도 있다. Backbone이 읽은 후보의 표현과 질문의 표현을 별도 head에 전달해 점수를 만든다. head가 모든 후보에 같은 채점 함수를 적용하면 실행할 때 후보 종류와 개수를 바꿀 수 있다.'),
-          table(['구현', 'Head가 사용하는 정보', '주요 계산'], [
-            ['Jared Palmer · Kev', '질문의 <decide>와 후보 끝의 hidden states', 'Query·key 형태의 pointer 채점'],
-            ['Cloudflare · Clef', '입력 memory · 질문 · 후보 표현', '후보별 evidence routing · 질문 간 attention'],
-            ['Nace.AI · Drex v2.0', 'Qwen MoE backbone의 내부 표현', '별도 pointer head'],
-            ['Sarvam AI · Sarvam-Prism', '후보 끝과 answer marker의 표현', '후보를 격리해 읽고 decision head로 비교'],
-            ['Zefan-Cai · Open-Jev', 'Qwen의 내부 표현', 'LoRA + 학습된 scalar decision head']
+          p("공격을 A, 회복을 B, 도주를 C에 대응시켜 질문한다. 언어 모델은 답의 첫 토큰을 고르는 위치에서 어휘 목록(vocabulary)의 각 토큰에 점수를 매긴다. 이 확률 변환 전 점수가 logit이다. 프로그램은 A·B·C의 점수만 꺼내 softmax로 합이 1인 값으로 바꾼다. 행동 이름 전체를 생성할 필요가 없다. 이렇게 모델 안의 점수를 꺼내 쓰는 것을 여기서는 readout이라고 부른다."),
+          {
+            type: "code",
+            lang: "python",
+            kind: "직접 계산",
+            label: "후보 토큰 점수를 선택 확률로 바꾸기",
+            run: "offline",
+            code: "from math import exp\n\n# 모델을 호출하지 않는 설명용 logits\nlogits = {\"A\": 2.0, \"B\": 0.5, \"C\": -1.0}\npeak = max(logits.values())\nweights = {key: exp(value - peak) for key, value in logits.items()}\nprobabilities = {key: value / sum(weights.values())\n                 for key, value in weights.items()}\nprint({key: round(value, 3) for key, value in probabilities.items()})\nassert abs(sum(probabilities.values()) - 1) < 1e-9\nassert max(probabilities, key=probabilities.get) == \"A\""
+          },
+          p("예제의 2.0, 0.5, −1.0은 계산을 설명하려고 지정한 값이다. 실제 사용에서는 모델이 이 점수를 계산한다. A·B·C가 답 문맥에서 각각 하나의 서로 다른 토큰인지도 확인해야 한다. Use EMBER처럼 여러 토큰으로 된 이름에서 첫 토큰 점수만 읽으면 행동 전체의 점수가 되지 않는다. 그래서 짧은 답 코드를 쓰거나, 문자열 전체의 조건부 확률을 계산하는 방법을 사용한다."),
+          table(["공개 구현","어떤 점수를 읽는가","학습·추가 처리"], [
+            [
+              "Nokia Applied Research · AnyJev",
+              "기존 지시 수행 LLM의 답 토큰 점수",
+              "추가 가중치 학습 없이 사용; 후보 순서를 바꿔 채점하고 답 글자 편향 보정"
+            ],
+            [
+              "TheoLeeCJ · SemIf",
+              "기존 공개 모델의 후보 토큰 점수",
+              "공통 상태 계산 재사용; 사용할 문제에 맞춰 확률 온도 보정"
+            ],
+            [
+              "Featherless AI · simple-jev",
+              "다음 토큰 점수에서 질문 타입에 맞는 답 구성",
+              "여러 질문이 공유하는 입력 앞부분의 계산을 캐시에 저장"
+            ],
+            [
+              "ekzhang · openjev-sglang",
+              "SGLang으로 지정한 토큰의 로그확률 조회",
+              "입력 앞부분의 캐시를 재사용하고 질문별 뒷부분 처리"
+            ],
+            [
+              "Bespoke Labs · Nimble",
+              "Qwen의 답 코드 토큰 점수",
+              "LoRA를 학습해 정답 후보의 확률을 높임"
+            ],
+            [
+              "Together AI · Tev1",
+              "기존 LM head의 한 글자 답",
+              "정답 글자로 지도학습; 클라이언트가 글자를 후보 이름으로 변환"
+            ],
+            [
+              "Perplexity · Decider v1.2",
+              "답 코드 255개의 점수",
+              "LM head에서 답 코드에 필요한 행을 사용; 여러 질문 위치에서 점수 추출"
+            ],
+            [
+              "Baseten · Mammoth-1 / Elephant-1",
+              "LM head의 후보 글자 점수",
+              "언어 모델 전체 가중치 학습; 입력 블록을 읽는 attention 방식도 변경"
+            ],
+            [
+              "H2O.ai · H2O-Lightning",
+              "학습된 모델의 답 토큰 점수",
+              "앞부분만 읽는 방식과 앞뒤를 함께 읽는 방식을 지원"
+            ],
+            [
+              "Fastino · GLiDE-27B",
+              "질문별 답 코드 255개의 점수",
+              "여러 질문을 작은 배치로 묶어 계산"
+            ]
           ]),
-          p('Kev의 pointer head는 질문과 후보의 표현을 비교한다. Clef는 후보마다 입력의 근거를 모으고 질문의 표현을 함께 처리하는 joint schema head를 사용한다. 둘 다 문자열 생성을 생략하지만 head의 연산은 같지 않다.', [['Kev', 'kev'], ['Clef', 'clef']]),
-          p('Drex v2.0, Sarvam-Prism, Open-Jev도 내부 표현에 별도 head를 연결하는 공개 사례다. 특히 Sarvam-Prism은 후보들이 같은 시작 위치를 쓰고 다른 후보를 읽지 못하도록 구성한다. 후보를 배열하는 방법과 attention도 결과에 관여한다.', [['Drex v2.0', 'drex'], ['Sarvam-Prism', 'prism'], ['Open-Jev', 'openjev']]),
-          p('MNIST 실험은 일반 Qwen에 Clef 방식 head를 새로 붙였으므로 정답 데이터로 학습했다. 배포된 Clef는 head까지 이미 학습되어 있다. LoRA는 이 실험에서 backbone을 조정한 방법이며, 모든 decision head에 수학적으로 필수인 구성은 아니다. Backbone을 고정하고 head만 학습하는 설계도 가능하다.', [['MNIST 실험', 'mnist'], ['배포된 Clef', 'clef']])
+          p("AnyJev, SemIf, simple-jev, openjev-sglang은 기존 모델에서 점수를 읽는 예다. 사용자가 새 head를 만들 필요는 없다. 다만 AnyJev처럼 후보 순서를 여러 번 바꾸어 점수를 합치면 계산도 여러 번 필요하다. “문자열을 생성하지 않는다”와 “모든 처리가 모델 계산 한 번으로 끝난다”는 서로 다른 말이다.", [["AnyJev","anyjev"],["SemIf","semif"],["simple-jev","simple"],["openjev-sglang","sglang"]]),
+          p("Nimble과 Tev1은 이 경로를 학습으로 개선한 예다. 이미 완성된 모델을 쓰는 사용자는 그 학습을 다시 할 필요가 없다. Perplexity Decider의 별도 readout 파일은 기존 LM head에서 답 코드에 해당하는 행을 가져온다. 파일이 분리되어 있다고 해서 반드시 새로운 종류의 복잡한 head를 붙인 것은 아니다.", [["Nimble","nimble"],["Tev1","tev"],["Perplexity Decider","pplx"]]),
+          p("Baseten의 기술 보고서, H2O-Lightning, GLiDE-27B 모델 카드는 같은 토큰 점수 방식에서도 학습 범위와 입력 처리 방법이 다를 수 있음을 보여 준다. Releasing the Inner Jev 논문도 기존 글자 점수를 그대로 읽는 기준 모델과 LoRA·축소 head를 학습한 모델을 비교한다.", [["Baseten의 기술 보고서","baseten"],["H2O-Lightning","h2o"],["GLiDE-27B","glide"],["Releasing the Inner Jev","inner"]])
         ]
       },
       {
-        id: 'comparison-encoders', title: '④ 문장을 생성하지 않는 encoder에서 시작한다',
+        id: "comparison-heads",
+        title: "③ 별도 head로 후보를 채점한다 · MNIST의 위치",
         blocks: [
-          p('고객 문의를 읽고 담당 부서를 고르는 일에는 긴 답변을 쓰는 능력이 필요하지 않을 수 있다. Encoder 계열은 상태·질문·후보를 양방향으로 읽고 decision head로 점수를 만든다. 생성용 decoder에서 시작한 앞의 구현과 출발점이 다르다.'),
-          table(['구현', '기반 구성', '판단의 특징'], [
-            ['NandhaKishorM / Convai Innovations · Laya', 'ModernBERT 계열 + typed decision head', '후보 marker의 표현을 채점'],
-            ['Fastino · GLiNER2.5-Decide', 'Text·schema를 함께 읽는 encoder', '후보 점수와 질문 간 제약을 함께 처리'],
-            ['Liquid AI · d1-omni-600M', '양방향 LFM encoder + vision·audio encoder', '멀티모달 상태에서 직접 판단'],
-            ['logan-markewich · jeff', 'GLiFormer encoder + RNN·classification head', '기존 encoder를 System One 인터페이스로 연결']
+          p("이 방식은 일반 언어 모델의 LM head 대신, 후보를 채점하는 head를 사용한다. 본체가 입력을 읽으며 만든 숫자 배열을 hidden states라고 한다. head는 질문과 후보가 있는 위치의 hidden states 등을 받아 후보별 점수를 계산한다. 모든 후보에 같은 채점 함수를 적용하는 설계라면 실행할 때 후보 개수나 설명을 바꿀 수도 있다."),
+          table(["공개 구현","Head에 주는 정보","점수를 만드는 방법"], [
+            [
+              "Jared Palmer · Kev",
+              "질문 표시 <decide>와 각 후보 끝의 내부 표현",
+              "질문과 후보 벡터를 비교하는 pointer head"
+            ],
+            [
+              "Cloudflare · Clef",
+              "입력 전체, 질문, 후보의 내부 표현",
+              "후보별로 입력의 근거를 모으고 질문끼리 정보 교환"
+            ],
+            [
+              "Nace.AI · Drex v2.0",
+              "Qwen MoE 본체의 내부 표현",
+              "별도 pointer head"
+            ],
+            [
+              "Sarvam AI · Sarvam-Prism",
+              "각 후보 끝과 답 표시 위치의 표현",
+              "후보끼리 읽지 못하게 한 뒤 decision head로 비교"
+            ],
+            [
+              "Zefan-Cai · Open-Jev",
+              "Qwen의 내부 표현",
+              "LoRA와 후보당 점수 하나를 내는 head를 학습"
+            ]
           ]),
-          p('Laya의 공개 코드는 encoder와 typed head를 구분한다. GLiNER2.5-Decide는 후보별 compatibility score를 만든 뒤 명시한 규칙에 맞는 공동 답을 찾는다. 예를 들어 공격이 탐지되었다면 전체 안전 판정도 unsafe가 되어야 한다는 제약을 표현할 수 있다.', [['Laya', 'laya'], ['GLiNER2.5-Decide', 'gliner']]),
-          p('Liquid AI의 같은 d1 제품군에도 decoder 기반 d1-3B와 encoder 기반 d1-omni가 함께 있다. jeff는 GLiFormer를 활용한 별도 구현이다. 회사 이름이나 System One API 형식만 보고 backbone이 같다고 판단해서는 안 된다.', [['Liquid AI', 'liquid'], ['jeff', 'jeff']])
+          p("Kev의 pointer head는 질문을 표현한 벡터와 후보를 표현한 벡터를 비교한다. Clef의 joint schema head는 각 후보가 입력에서 필요한 근거를 모으고 질문 표현과 결합해 점수를 만든다. 예를 들어 “회복해야 하나?”를 판단할 때 체력 관련 입력을 참고하는 식이다. 두 구현 모두 행동 이름을 생성하는 과정은 생략하지만, head 안의 계산은 다르다.", [["Kev","kev"],["Clef","clef"]]),
+          p("Drex v2.0, Sarvam-Prism, Open-Jev도 별도 head를 쓰는 공개 사례다. Sarvam-Prism은 후보마다 같은 시작 위치를 부여하고 다른 후보를 읽지 못하게 한다. 이처럼 후보 점수에는 head뿐 아니라 후보를 입력에 배치하는 방식도 영향을 준다.", [["Drex v2.0","drex"],["Sarvam-Prism","prism"],["Open-Jev","openjev"]]),
+          p("MNIST 실험은 바로 이 ③번이다. Qwen3.5-0.8B의 기존 가중치는 고정하고, 새 Clef 방식 head와 Qwen 안의 LoRA를 학습했다. 학습 입력은 이미지·현재 숫자·행동 설명이며, 정답 행동은 오차를 계산할 때만 사용한다. 이미지의 정답 숫자를 모델 입력에 미리 알려 준 것은 아니다.", [["MNIST 실험","mnist"]]),
+          p("배포된 Clef는 head까지 학습된 모델이다. 반면 MNIST는 일반 Qwen에 새 head를 붙였기 때문에 그 head를 학습해야 했다. LoRA까지 함께 학습하는 것은 이 실험이 택한 방법이다. 본체를 완전히 고정하고 head만 학습하는 방법도 가능하지만, 이 MNIST 실험이 그 설정의 성능까지 검증한 것은 아니다.", [["배포된 Clef","clef"]])
         ]
       },
       {
-        id: 'comparison-embeddings', title: '⑤ 상태와 후보를 각각 임베딩해 비교한다',
+        id: "comparison-encoders",
+        title: "④ 앞뒤 문맥을 함께 읽는 encoder로 후보를 채점한다",
         blocks: [
-          p('담당 부서가 billing·technical·sales로 계속 같다면 후보 설명의 벡터를 미리 만들어 둘 수 있다. 새 문의가 들어오면 상태와 질문의 벡터를 만들고, 후보 벡터들과 비교한다. 상태와 후보를 처음부터 함께 읽는 대신 표현을 분리하는 접근이다.'),
-          table(['구현', '두 표현을 만드는 방법', '최종 점수'], [
-            ['CLM · Contrastive Language Models', '상태와 행동을 따로 인코딩하고 학습한 projection head 적용', '두 projection 벡터의 cosine similarity'],
-            ['Kakao · Kanana-2-v-decide-3b-2611', '상태·질문을 한 임베딩으로, 후보 답을 각각 별도 임베딩으로 구성', 'Cosine similarity의 softmax']
+          p("생성용 decoder는 보통 다음 토큰을 예측하도록 만들어진 모델이다. Encoder는 입력의 앞뒤 문맥을 함께 읽어 표현을 만든다. 이 분류에서는 생성용 decoder 대신 양방향 encoder를 본체로 쓰고, 그 표현을 별도 head에 전달하는 구현을 ④로 묶었다. 예를 들어 고객 문의 전체와 부서 후보를 읽고 담당 부서 점수를 계산한다."),
+          table(["공개 구현","모델 본체와 head","특징"], [
+            [
+              "NandhaKishorM / Convai Innovations · Laya",
+              "ModernBERT 계열 encoder + 질문 타입별 head",
+              "후보를 표시한 위치의 표현을 채점"
+            ],
+            [
+              "Fastino · GLiNER2.5-Decide",
+              "텍스트·질문·후보를 함께 읽는 encoder",
+              "후보 점수를 계산한 뒤 답 사이의 규칙도 적용"
+            ],
+            [
+              "Liquid AI · d1-omni-600M",
+              "양방향 LFM encoder + 이미지·오디오 encoder",
+              "텍스트 외 입력도 받아 직접 판단"
+            ],
+            [
+              "logan-markewich · jeff",
+              "GLiFormer encoder + RNN·분류 head",
+              "기존 모델을 System One 호출 형식에 연결"
+            ]
           ]),
-          p('CLM은 상태와 행동을 연결하는 contrastive 학습을 사용한다. 공개 코드에는 state head와 action head를 거친 벡터의 cosine similarity에 scale을 곱하는 연산이 있다. 카카오 Kanana-2-v-decide는 텍스트·JSON·대화와 이미지 상태를 받아 질문·후보 임베딩의 유사도로 분포를 만든다고 설명한다.', [['CLM', 'clm'], ['카카오 Kanana-2-v-decide', 'kanana']]),
-          p('이 경우 확률은 vocabulary의 특정 토큰을 꺼낸 결과가 아니다. 후보 설명을 인코딩한 벡터와 상태·질문 벡터를 비교한 결과다. 후보 표현을 재사용하기 좋지만, 세부 조건을 구분하는 능력과 확률 보정은 해당 학습과 실제 업무에서 확인해야 한다.')
+          p("Laya는 encoder와 질문 타입에 맞는 head를 사용한다. GLiNER2.5-Decide는 후보별 점수를 만든 뒤, 미리 정한 규칙을 만족하는 답 조합을 찾는다. 예를 들어 “공격 탐지 = 예”로 선택했다면 “전체 판정 = 안전”은 선택하지 못하도록 할 수 있다. 점수를 계산하는 단계와 허용된 답 조합을 고르는 단계가 함께 있는 것이다.", [["Laya","laya"],["GLiNER2.5-Decide","gliner"]]),
+          p("Liquid AI의 d1 제품군 안에서도 d1-3B는 decoder, d1-omni는 encoder를 사용한다. jeff는 GLiFormer를 이용한 별도 구현이다. 같은 회사 제품이거나 API 형식이 같더라도 본체까지 같지는 않다. head까지 학습된 모델을 그대로 사용하면 추가 학습데이터는 필요 없고, 새 head를 붙이거나 업무에 맞춰 학습할 때는 데이터가 필요하다.", [["Liquid AI","liquid"],["jeff","jeff"]])
         ]
       },
       {
-        id: 'comparison-diffusion', title: 'Diffusion은 어떤 head를 쓰는가와 별개의 축이다',
+        id: "comparison-embeddings",
+        title: "⑤ 상태와 후보를 따로 벡터로 만들어 비교한다",
         blocks: [
-          p('빈 답 칸 여러 개를 한꺼번에 읽는다고 모두 같은 구조는 아니다. Diffusion 모델은 여러 위치의 표현을 함께 갱신할 수 있고, 그 위에서 토큰 점수를 읽거나 별도 decision head를 사용할 수 있다.'),
-          table(['공개 구현', 'Backbone과 출력 경로', '읽을 때 구분할 점'], [
-            ['mmastrac · djev', 'DiffusionGemma의 답 canvas에서 slot별 토큰 분포를 읽음', '고정 텍스트를 유지하고 답 slot을 남긴 structured readout'],
-            ['Nace.AI · Drex DLM', 'NVIDIA Efficient-DLM backbone + pointer head', '공유 상태는 양방향, 질문 branch는 격리해 채점']
+          p("고객 문의를 billing·technical·sales 중 하나로 나눈다고 하자. 이 방식은 문의와 질문을 벡터 하나로 만들고, 각 부서 설명도 따로 벡터로 만든다. 벡터는 내용을 표현하는 숫자 배열이며, 이를 만드는 과정을 임베딩이라고 한다. 문의 벡터와 각 후보 벡터가 얼마나 비슷한지 계산해 후보를 고른다."),
+          table(["공개 구현","벡터를 만드는 방법","후보 점수"], [
+            [
+              "CLM · Contrastive Language Models",
+              "상태와 행동을 따로 읽고 학습한 벡터 변환층(projection head) 적용",
+              "두 벡터 방향의 유사도(cosine similarity)에 배율을 곱함"
+            ],
+            [
+              "Kakao · Kanana-2-v-decide-3b-2611",
+              "상태·질문을 하나의 벡터로, 후보 답을 각각의 벡터로 만듦",
+              "Cosine similarity를 softmax로 변환"
+            ]
           ]),
-          p('djev는 고정된 답 형식을 canvas에 놓고 한 denoise step에서 답 slot의 분포를 읽는 방법을 공개했다. Drex DLM은 diffusion backbone에 pointer head를 결합한 모델이다. 같은 diffusion 계열에서도 readout이 다르며, Nace의 Qwen 기반 Drex v2.0과 Drex DLM도 별도 모델로 구분해야 한다.', [['djev', 'djev'], ['Drex DLM', 'drexDlm'], ['Drex v2.0', 'drex']])
+          p("CLM은 올바른 상태·행동의 짝은 가깝게, 다른 짝은 멀게 표현되도록 대조학습(contrastive learning)을 한다. 공개 코드에는 상태용 head와 행동용 head가 각각 있다. 카카오 Kanana-2-v-decide는 텍스트·JSON·대화·이미지 상태를 지원하며, 상태·질문 벡터와 후보 벡터의 유사도로 확률을 만든다고 설명한다. 두 모델이 같은 변환층을 쓴다는 뜻은 아니다.", [["CLM","clm"],["카카오 Kanana-2-v-decide","kanana"]]),
+          p("후보 설명이 계속 같으면 후보 벡터를 미리 계산해 재사용할 수 있다. 상태와 후보를 따로 읽는다고 반드시 본체 가중치도 두 벌인 것은 아니다. 같은 모델을 각각 호출할 수도 있다. 이미 학습된 모델의 벡터를 그대로 비교한다면 추가 학습이 필요 없고, 모델이나 새 변환층을 직접 학습하려면 올바른 상태·후보의 짝 같은 데이터가 필요하다.")
         ]
       },
       {
-        id: 'comparison-parallel', title: '세 질문을 함께 물으면 서로의 답도 볼까?',
+        id: "comparison-diffusion",
+        title: "Diffusion 본체에도 서로 다른 head를 붙일 수 있다",
         blocks: [
-          p('회복이 필요한지, 어느 부서가 담당할지, 얼마나 급한지를 한 요청에 묶을 수 있다. 그러나 한 HTTP 요청에 들어 있다는 사실만으로 세 질문을 하나의 공동 판단으로 계산했다고 볼 수는 없다. 어떤 구현은 공통 문서만 재사용하고, 어떤 구현은 질문끼리 정보를 나눈다.'),
-          table(['처리 방식', '정보를 공유하는 범위', '공개 예'], [
-            ['Prefix 재사용 후 독립 채점', '공통 상태의 cache를 쓰고 질문별 suffix를 처리', 'simple-jev · Nimble의 해당 경로'],
-            ['질문 branch 격리', '상태는 읽지만 다른 질문 branch는 읽지 못함', 'Kev · Drex DLM'],
-            ['공동 표현과 readout', '질문들을 함께 처리하며 서로 영향을 줄 수 있음', 'Clef · Perplexity Decider v1.2'],
-            ['명시한 규칙으로 공동 선택', '후보 점수에 더해 답 사이의 허용 조합을 검사', 'GLiNER2.5-Decide']
+          p("앞의 다섯 분류는 주로 후보 점수를 어떻게 얻는지에 따른 구분이다. Diffusion은 입력·답 위치의 표현을 갱신하는 모델 본체의 방식이다. 일반적인 순차 생성 모델이 답을 왼쪽부터 이어 쓰는 것과 달리, 여러 답 위치를 함께 갱신할 수 있다. 그 결과에서 토큰 점수를 읽을 수도 있고 별도 head로 후보를 채점할 수도 있다."),
+          table(["공개 구현","모델 본체","답을 얻는 방법"], [
+            [
+              "mmastrac · djev",
+              "DiffusionGemma",
+              "정해진 답 틀에서 답을 넣을 위치별 토큰 분포를 읽음"
+            ],
+            [
+              "Nace.AI · Drex DLM",
+              "NVIDIA Efficient-DLM",
+              "별도 pointer head로 후보를 채점; 질문끼리 읽지 못하도록 분리"
+            ]
           ]),
-          p('Perplexity Decider v1.1은 질문마다 마지막 위치에서 읽었다. v1.2는 한 sequence에 여러 질문을 넣고 각 질문 뒤 marker에서 읽으며, 질문끼리 영향을 줄 수 있다고 설명한다. 같은 모델 이름도 버전에 따라 판단 경로가 달라진다.', [['Perplexity Decider', 'pplx']]),
-          p('반면 Kev는 Qwen의 recurrent layer가 일반 attention mask만으로 격리되지 않는다는 점 때문에 질문별 row와 cache 재사용 경로를 구분한다. 한 번에 보낸 질문 수와 실제 sequence 수, 반복 횟수, 대기 시간을 함께 기록해야 속도를 비교할 수 있다.', [['Kev', 'kev']]),
-          { type: 'exercise', question: '다른 조건은 그대로 두고 질문 하나를 더 보냈더니 기존 질문의 확률도 바뀌었다. 구현 오류라고 단정할 수 있을까?', answer: '질문이 공동 표현을 사용하는 구현이라면 다른 질문이 입력 문맥에 영향을 줄 수 있다. 먼저 해당 버전의 attention과 readout 계약을 확인한다. 독립성을 보장한 구현이라면 질문을 따로·함께 보냈을 때의 차이를 수치 오차와 비교해 검사한다.' }
+          p("djev는 고정 텍스트를 남겨 두고 빈 답 위치를 준비한 뒤, 한 번의 갱신(denoise step)에서 그 위치의 토큰 분포를 읽는다. Drex DLM은 diffusion 본체에 pointer head를 붙였다. 따라서 diffusion이라는 이름만으로 head의 종류나 학습데이터 필요 여부를 알 수 없다. Nace의 Qwen 기반 Drex v2.0과 Drex DLM도 서로 다른 모델이다.", [["djev","djev"],["Drex DLM","drexDlm"],["Drex v2.0","drex"]])
         ]
       },
       {
-        id: 'comparison-training', title: 'Head 학습, 모델 학습, 확률 보정을 나누어 본다',
+        id: "comparison-parallel",
+        title: "질문을 한꺼번에 보내면 서로의 판단에도 영향을 줄까?",
         blocks: [
-          p('학습이 필요하다는 말에는 공급자가 모델을 만든 과정과 사용자가 자기 업무에 맞추는 과정이 함께 섞이기 쉽다. 이미 학습된 Nimble·Kev·Clef·Laya 등을 내려받아 추론하는 사용자가 항상 새 데이터셋을 만들어야 하는 것은 아니다. 반대로 새 head를 붙이거나 업무에 맞게 확률을 보정하려면 그 목적에 맞는 데이터가 필요하다.'),
-          table(['작업', '바뀌는 부분', '필요한 근거'], [
-            ['기존 모델의 raw readout', '가중치 변경 없음', '후보 토큰과 프롬프트가 맞는지, 실제 문제의 성능'],
-            ['순서·prior 보정', '출력 점수의 결합·재조정', '회전별 출력과 비라벨 입력 등 방법에 맞는 자료'],
-            ['Head·LoRA·전체 가중치 학습', '후보 채점 함수 또는 backbone', '정답·검증 가능한 결과·teacher 분포 등 학습 신호'],
-            ['온도 보정', 'Logits를 확률로 바꾸는 scale', '학습·최종 평가와 분리한 보정 데이터'],
-            ['독립 평가', '모델은 고정', '실제 사용할 입력 분포의 정답과 실행 결과']
+          p("같은 고객 문의에 대해 “담당 부서는?”, “환불이 필요한가?”, “얼마나 급한가?”를 한 요청에 보낼 수 있다. 어떤 구현은 문의를 읽은 계산만 재사용하고 세 질문은 따로 판단한다. 다른 구현은 세 질문의 표현을 함께 처리한다. 한 HTTP 요청에 담았다는 사실만으로 이 둘을 구분할 수는 없다."),
+          table(["처리 방식","질문끼리 공유하는 것","공개 예"], [
+            [
+              "공통 입력 계산만 재사용",
+              "문의까지 읽은 결과를 캐시에 저장; 뒤에 붙이는 질문은 각각 처리",
+              "simple-jev · Nimble의 해당 처리 방식"
+            ],
+            [
+              "다른 질문을 읽지 못하도록 분리",
+              "공통 상태는 읽을 수 있지만 다른 질문의 입력은 읽지 못함",
+              "Kev · Drex DLM"
+            ],
+            [
+              "질문들을 함께 처리",
+              "질문 표현이 서로 영향을 줄 수 있음",
+              "Clef · Perplexity Decider v1.2"
+            ],
+            [
+              "답 조합에 규칙 적용",
+              "개별 점수 외에 답 사이의 허용 조합을 검사",
+              "GLiNER2.5-Decide"
+            ]
           ]),
-          p('AnyJev의 순서·prior 보정은 가중치를 바꾸지 않는 경로이며, 같은 프로젝트의 Tacit은 self-distillation으로 학습한 별도 체크포인트다. 사람의 정답이나 다른 teacher 모델을 쓰지 않았다는 설명도 학습 자체를 하지 않았다는 뜻은 아니다.', [['AnyJev', 'anyjev']]),
-          p('또한 softmax로 합이 1인 숫자를 만들었다고 calibration이 보장되지는 않는다. TypeSafe의 RLCD, Cloudflare가 설명한 calibration 학습, 학습 뒤 temperature scaling은 각각 확인할 과정이다. 새 게임이나 업무에서도 확률 0.9인 예측들의 실제 정답 비율이 그에 맞는지 따로 평가한다.', [['TypeSafe', 'jev'], ['Cloudflare', 'clef']]),
-          { type: 'exercise', question: '후보 A·B·C의 전체 vocabulary 확률이 0.06·0.03·0.01이었다. 후보만 남겨 정규화하면 A는 0.6이다. A가 정답일 확률이 60%라고 바로 해석할 수 있을까?', answer: '0.6은 이 세 후보 토큰의 확률 질량 안에서 A가 차지하는 비율이다. 전체 vocabulary에서 세 후보가 차지하는 질량은 0.1이며, 후보 밖의 값은 정규화에서 제외되었다. 어느 수치도 실제 정답 빈도와 자동으로 같아지지 않는다. 해당 문제의 정답 데이터로 보정을 평가해야 한다.' }
+          p("Perplexity Decider v1.1은 질문마다 마지막 위치의 점수를 읽었다. v1.2는 한 입력 토큰 열(sequence)에 여러 질문을 넣고 각 질문 뒤의 표시 토큰(marker)에서 점수를 읽는다. 모델 카드에는 질문들이 서로 영향을 줄 수 있다고 설명되어 있다. 모델 이름이 같아도 버전에 따라 처리 방법이 바뀔 수 있다.", [["Perplexity Decider","pplx"]]),
+          p("Kev는 질문을 분리할 때 Qwen의 recurrent layer도 고려한다. 이 층은 앞에서 계산한 상태를 이어 쓰므로, attention mask로 토큰 사이 연결만 막는 것으로 질문을 완전히 분리할 수 없기 때문이다. 구현에서는 질문별 입력 행과 공통 캐시 재사용을 구분한다. 속도를 비교할 때는 요청에 담은 질문 수뿐 아니라 실제 모델 계산 횟수와 전체 대기 시간도 기록해야 한다.", [["Kev","kev"]]),
+          {
+            type: "exercise",
+            question: "같은 문의에 질문 하나를 추가했더니 원래 질문의 후보 확률도 바뀌었다. 구현 오류라고 단정할 수 있을까?",
+            answer: "질문들이 함께 처리되는 모델이라면 추가 질문이 기존 질문의 표현에도 영향을 줄 수 있다. 먼저 그 모델이 질문별 독립성을 보장하는지 확인한다. 독립성을 보장하는 구현이라면 질문을 따로 보낸 결과와 함께 보낸 결과를 비교해 차이가 단순 수치 오차인지 검사한다."
+          }
         ]
       },
       {
-        id: 'comparison-services', title: '회사 API와 실행 환경은 공개된 수준까지 구분한다',
+        id: "comparison-training",
+        title: "내가 학습데이터를 준비해야 하는 경우",
         blocks: [
-          p('System One 형태로 호출할 수 있어도 내부 head가 공개되어 있다는 뜻은 아니다. 다음은 2026년 11월 11일 공식 자료에서 확인한 제품 범위다. API의 입출력, 공급자가 설명한 backbone, 실제 공개 코드의 구조를 구분했으며 속도·가격 순위를 만들지는 않았다.'),
-          table(['회사·제품', '공개 자료에서 확인한 내용', '이 비교에서 구분한 범위'], [
-            ['TypeSafe · Jev', 'Typed decision·확률과 calibration 학습 목표', '정확한 내부 head 구조는 확정하지 않음'],
-            ['OpenAI · Decisions API', 'gpt-6-luna의 predicate·choice·score', '공식 API 가이드로 head 구조를 확정하지 않음'],
-            ['Microsoft · Microsoft-Decision-1', 'Qwen3.5-9B를 single-pass scoring용 post-training', '공개 발표의 backbone·학습 범위'],
-            ['Upstage · Solar Decide', 'Solar Mini 4 기반 System One endpoint', '문자열 생성 없이 확률을 반환한다는 공식 설명'],
-            ['Inception · Mercury Decide', '고빈도 분류용 decision 제품', '해당 발표만으로 head·sampling 구조를 확정하지 않음'],
-            ['Snowflake · Decision', 'Cortex AI Functions에서 SQL로 행별 판단', '모델 출력과 데이터 플랫폼 통합을 구분'],
-            ['IBM · Granite Switch', 'Base model과 decision·safety adapter 전환', '요청별 adapter 선택이라는 배포 구성'],
-            ['Parallel · Decisions API', '실시간 웹 검색과 근거를 결합한 typed decision', '모델 head와 검색·판단 시스템을 구분']
+          p("가장 먼저 “완성된 모델을 쓰는가, 새로 학습할 부분이 있는가?”를 확인한다. 학습된 Nimble·Kev·Clef·Laya를 내려받아 그대로 실행하는 것과, 일반 Qwen에 새 head를 붙이는 것은 다르다. 전자는 공급자가 학습을 마쳤고, 후자는 사용자가 새 부분을 학습해야 한다. ①이나 ②도 성능을 개선하려고 직접 추가 학습한다면 데이터가 필요하다."),
+          table(["내가 하려는 작업","바뀌는 가중치","준비할 자료"], [
+            [
+              "학습된 모델을 그대로 실행",
+              "없음; 본체와 head 모두 고정",
+              "추가 학습데이터 불필요; 성능을 확인할 평가 사례는 준비"
+            ],
+            [
+              "새 decision head만 학습",
+              "새 head; 본체 고정",
+              "입력·질문·후보와 정답 선택"
+            ],
+            [
+              "MNIST처럼 LoRA + head 학습",
+              "LoRA 보조 행렬과 새 head; 기존 본체 고정",
+              "이미지·현재 숫자와 정답 행동"
+            ],
+            [
+              "기존 모델을 전체 미세조정",
+              "선택한 본체·head 가중치 전체",
+              "정답, 실행 보상, 교사 모델의 답 등 학습 목표에 맞는 자료"
+            ],
+            [
+              "후보 순서·답 글자 편향 보정",
+              "모델 가중치는 고정; 점수 합치는 방법 변경",
+              "순서를 바꾼 출력과 방법에 따라 정답 없는 입력 등"
+            ],
+            [
+              "확률의 온도 보정",
+              "확률 변환 배율 조정; 본체·head 고정",
+              "모델 학습용·최종 시험용과 분리한 정답 있는 보정 데이터"
+            ]
           ]),
-          p('Jev, OpenAI Decisions API, Microsoft-Decision-1, Solar Decide의 공식 자료는 각각 다른 수준으로 구현을 설명한다. 인터페이스가 닮았다는 이유로 같은 구조라고 묶지 않는다.', [['Jev', 'jev'], ['OpenAI Decisions API', 'openai'], ['Microsoft-Decision-1', 'microsoft'], ['Solar Decide', 'upstage']]),
-          p('Mercury Decide와 Snowflake Decision은 제품 발표에서 확인한 범위를 표시했다. IBM의 adapter 전환과 Parallel의 웹 검색은 판단을 어떤 시스템에 연결하는지 보여 준다. 모델을 MLX·Core ML·ONNX·llama.cpp로 옮기는 작업도 주로 실행 환경의 차이이며, 모델의 채점 구조가 새로 생겼는지는 별도로 확인한다.', [['Mercury Decide', 'inception'], ['Snowflake Decision', 'snowflake'], ['IBM', 'ibm'], ['Parallel', 'parallel']])
+          p("LoRA와 head는 역할이 다르다. LoRA는 본체가 만드는 표현을 적은 수의 추가 가중치로 조정한다. head는 그 표현을 받아 후보 점수를 계산한다. MNIST에서는 두 부분을 함께 학습했지만, 어느 부분을 학습할지는 실험 설계에 따라 선택한다. 새 head를 학습하는 데 반드시 LoRA까지 써야 하는 것은 아니다."),
+          p("학습 신호가 반드시 사람이 일일이 붙인 정답일 필요는 없다. 예를 들어 AnyJev의 순서·답 글자 편향 보정은 모델 가중치를 바꾸지 않지만, 같은 프로젝트의 Tacit은 모델 자신의 예측을 학습 목표로 쓰는 self-distillation을 거친 별도 모델이다. 사람 정답을 쓰지 않았더라도 입력과 학습 목표를 만들어 가중치를 바꿨다면 학습을 한 것이다.", [["AnyJev","anyjev"]]),
+          p("학습과 확률 보정도 구분해야 한다. softmax는 점수를 합이 1인 값으로 바꿔 줄 뿐, “0.9라고 답한 사례의 약 90%가 맞는다”는 성질까지 보장하지 않는다. 이를 확인하고 조정하는 것이 확률 보정(calibration)이다. TypeSafe의 RLCD와 Cloudflare의 calibration 학습은 모델을 만드는 학습 방법이며, 학습 후 온도 보정은 점수에 적용하는 배율을 맞추는 방법이다. 새로운 게임이나 업무에서도 별도 정답 자료로 확인해야 한다.", [["TypeSafe","jev"],["Cloudflare","clef"]]),
+          {
+            type: "exercise",
+            question: "어휘 전체에서 A·B·C의 확률이 0.06·0.03·0.01이었다. 세 후보만 남겨 다시 나누면 A는 0.6이다. A가 실제로 정답인 비율도 60%일까?",
+            answer: "0.6은 세 후보에 배정된 값의 합 0.1 중 A의 값 0.06이 차지하는 비율이다. 후보 밖 토큰의 값은 이 계산에서 제외됐다. 이 비율만으로 실제 정답 비율을 알 수는 없다. 실제 문제에서 0.6 정도의 확률을 받은 예측들을 모으고 그중 몇 개가 정답인지 별도 데이터로 확인해야 한다."
+          }
         ]
       },
       {
-        id: 'comparison-finish', title: '모델을 바꿀 때 같은 상태와 실행 코드로 비교한다',
+        id: "comparison-services",
+        title: "같은 API 형태라도 내부 계산 방식은 다를 수 있다",
         blocks: [
-          p('포켓몬에서 Qwen을 다른 모델로 바꾸려면 먼저 같은 상태·목표·후보를 보내고 답을 같은 행동으로 연결한다. 그 상태에서 문자열 생성, 토큰 readout, 학습된 head를 비교해야 계산 경로의 차이를 관찰할 수 있다. 피해 설명을 한쪽에만 주거나 실행 코드를 함께 바꾸면 어떤 변경이 결과를 만들었는지 나누기 어렵다.'),
-          table(['확인할 항목', '기록할 내용'], [
-            ['출력 경로', '생성 문자열 / vocabulary logits / decision head / 임베딩 유사도'],
-            ['학습 범위', '기존 가중치 / LoRA / 새 head / 전체 학습 / distillation'],
-            ['질문 처리', '독립 / prefix 공유 / 공동 판단 / 답 사이 제약'],
-            ['확률과 실행', '보정 자료 / 선택 정확도 / 행동 결과 / 지연 / 반복 실패']
+          p("상태와 후보를 보냈더니 {\"attack\":0.7,\"heal\":0.2,\"run\":0.1}이 돌아왔다고 하자. 이 응답만으로는 A·B·C 토큰의 점수를 읽었는지, 별도 head로 채점했는지, 임베딩을 비교했는지 알 수 없다. 회사마다 내부 구조를 공개한 범위가 다르므로, 공식 자료로 확인한 내용까지만 아래에 적었다. 자료 확인일은 2026년 11월 11일이다."),
+          table(["회사·제품","공식 자료에서 설명한 것","이 설명만으로 알 수 없는 것"], [
+            [
+              "TypeSafe · Jev",
+              "정해진 질문 타입의 답과 확률을 반환; 확률 보정을 위한 학습 목표 설명",
+              "정확한 내부 head 구조"
+            ],
+            [
+              "OpenAI · Decisions API",
+              "gpt-6-luna로 참/거짓(predicate)·선택(choice)·점수(score) 질문 처리",
+              "확률을 계산하는 내부 head 구조"
+            ],
+            [
+              "Microsoft · Microsoft-Decision-1",
+              "Qwen3.5-9B를 한 번의 채점에 맞게 후속 학습",
+              "발표에 없는 세부 구현"
+            ],
+            [
+              "Upstage · Solar Decide",
+              "Solar Mini 4 기반; 답 문자열 생성 없이 확률 반환",
+              "문서에 없는 정확한 head 연산"
+            ],
+            [
+              "Inception · Mercury Decide",
+              "반복적인 고빈도 분류를 위한 제품",
+              "해당 발표에 없는 head와 답 선택의 세부 계산"
+            ],
+            [
+              "Snowflake · Decision",
+              "SQL에서 데이터 행별로 판단하는 Cortex AI Functions 기능",
+              "SQL 호출 형식만으로는 내부 채점 구조를 알 수 없음"
+            ],
+            [
+              "IBM · Granite Switch",
+              "요청에 따라 decision·safety adapter를 선택해 기반 모델에 적용",
+              "Adapter 전환 기능만으로 각 head의 구조를 알 수 없음"
+            ],
+            [
+              "Parallel · Decisions API",
+              "실시간 웹 검색과 근거를 결합해 정해진 타입의 답 반환",
+              "검색 기능만으로 모델 내부 head를 알 수 없음"
+            ]
           ]),
-          p('이 기준으로 보면 로컬 포켓몬은 ① 생성 경로, 추가 학습 없는 A·B·C 추출은 ② vocabulary readout, MNIST는 ③ 새 head 학습, Kanana는 ⑤ 임베딩 매칭에 놓인다. 같은 행동 이름을 반환해도 어디에서 점수를 만들었는지, 어느 부분이 이미 학습되어 있는지, 실행 결과와 확률이 맞는지를 각각 확인할 수 있다.'),
-          p('직접 head를 학습하는 과정은 시각적 decision model 실험 안내에서 이어 볼 수 있다. 가장 작은 MNIST 문제부터 정답 데이터, LoRA와 head, 확률 보정, 높은 확신의 오답을 순서대로 살펴본다.', [['시각적 decision model 실험 안내', 'guide'], ['MNIST 문제', 'mnist']])
+          p("Jev와 OpenAI Decisions API는 어떤 질문과 출력을 지원하는지 설명한다. Microsoft-Decision-1은 기반 모델과 후속 학습을, Solar Decide는 문자열 생성 없이 확률을 반환하는 동작을 설명한다. API 형식이 닮았다는 이유만으로 내부 계산까지 같다고 묶을 수는 없다.", [["Jev","jev"],["OpenAI Decisions API","openai"],["Microsoft-Decision-1","microsoft"],["Solar Decide","upstage"]]),
+          p("Mercury Decide와 Snowflake Decision도 발표에 나온 제품 동작을 기준으로 적었다. IBM은 어떤 adapter를 골라 실행하는지, Parallel은 웹 검색으로 판단 근거를 어떻게 보충하는지를 보여 준다. 이런 시스템 기능과 후보 점수를 만드는 head의 계산은 서로 다른 비교 항목이다.", [["Mercury Decide","inception"],["Snowflake Decision","snowflake"],["IBM","ibm"],["Parallel","parallel"]]),
+          p("모델을 실행하는 소프트웨어도 따로 살펴야 한다. 같은 모델을 Mac의 MLX, ONNX를 지원하는 장치, llama.cpp 등으로 옮겨 실행할 수 있다. 실행 환경을 바꾸면 속도와 메모리 사용량은 달라질 수 있지만, 그 사실만으로 새로운 head가 생긴 것은 아니다. 모델의 점수 계산을 바꿨는지와 어디에서 실행하는지를 나누어 비교한다.")
+        ]
+      },
+      {
+        id: "comparison-finish",
+        title: "모델을 바꿀 때는 입력·학습·출력을 함께 기록한다",
+        blocks: [
+          p("포켓몬의 Qwen을 다른 모델로 바꿔 비교하려면 같은 게임 상태, 목표, 행동 후보를 전달하고 같은 실행 코드로 행동을 연결한다. 한 모델에만 피해 설명을 주거나 조작 코드까지 바꾸면 결과가 모델 차이 때문인지 알기 어렵다. 같은 조건에서 다음 항목을 기록하면 차이를 설명하기 쉽다."),
+          table(["기록할 항목","구체적인 내용"], [
+            [
+              "후보 점수의 출처",
+              "생성한 행동 이름 / A·B·C 토큰 점수 / 별도 head / 임베딩 유사도"
+            ],
+            [
+              "직접 학습한 부분",
+              "없음 / 새 head / LoRA / 본체 전체; 사용한 학습데이터"
+            ],
+            [
+              "여러 질문 처리",
+              "각각 계산 / 공통 입력만 재사용 / 질문끼리 영향 / 답 조합 규칙"
+            ],
+            [
+              "성능과 시간",
+              "선택 정확도 / 실제 행동 결과 / 확률 보정 / 전체 지연 / 반복 실패"
+            ]
+          ]),
+          p("로컬 포켓몬은 ① 기존 Qwen으로 행동 이름을 생성한 사례다. 기존 LLM에서 A·B·C의 점수만 읽으면 ②다. 직접 만든 MNIST 모델은 ③이며 기존 Qwen 가중치는 고정하고 LoRA와 새 Clef 방식 head를 학습했다. Kanana는 ⑤처럼 상태·질문과 후보의 임베딩을 비교한다. 이 구분으로 어떤 점수를 쓰는지와 내가 무엇을 학습해야 하는지를 함께 확인할 수 있다."),
+          p("MNIST처럼 새 head를 학습하는 과정을 따라가려면 시각적 decision model 실험 안내와 MNIST 문제를 이어 읽으면 된다. 입력과 정답 행동을 만드는 방법, LoRA·head의 학습, 확률 보정, 높은 확률로 틀린 사례를 순서대로 확인할 수 있다.", [["시각적 decision model 실험 안내","guide"],["MNIST 문제","mnist"]])
         ]
       }
     ]

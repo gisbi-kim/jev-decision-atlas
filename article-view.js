@@ -34,10 +34,19 @@
   }
   function comparisonPipeline(b,caseId){
     const id=`${caseId}-architecture-${diagrams.length+1}`;
-    const xs=[150,340,530,720],width=170,rowHeight=132;
+    const xs=[150,340,530,720],width=170,rowHeight=176;
     const colors={world:['#202020','#fff','#ccc'],code:['#efefec','#202020','#686864'],model:['#e33b27','#fff','#ffe4de'],vision:['#dce8ec','#1f3f4b','#55707a'],llm:['#e3dfed','#3b3056','#756688']};
     const labels=['INPUT','BACKBONE','HEAD / READOUT','OUTPUT'];
     const arrow=d=>`<path d="${d}" fill="none" stroke="#696961" stroke-width="1.5" marker-end="url(#${id}-arrow)"/>`;
+    const badge=(label,kind,x,y,width)=>{
+      const fill=kind==='train'?'#dce8dc':kind==='optional'?'#fafaf8':'#efefec';
+      const stroke=kind==='fixed'?'#c5c5bf':'#55725a';
+      return `<g><rect x="${x}" y="${y}" width="${width}" height="24" fill="${fill}" stroke="${stroke}" ${kind==='optional'?'stroke-dasharray="3 2"':''}/><text x="${x+width/2}" y="${y+16}" text-anchor="middle" font-size="9.5" font-weight="500" fill="${kind==='fixed'?'#555':'#34583c'}">${escape(label)}</text></g>`;
+    };
+    const training=(row,y)=>{
+      const tags=(items,x)=>items.map(([label,kind],i)=>badge(label,kind,x+i*88,y+130,items.length===1?170:82)).join('');
+      return `<text x="20" y="${y+145}" font-size="10" fill="${row.highlight?'#34583c':'#777'}">${row.highlight?'MNIST의 학습 설정':'사용 · 추가 학습'}</text>${tags(row.training.backbone,xs[1])}${tags(row.training.head,xs[2])}${row.training.data.map((line,i)=>`<text x="720" y="${y+139+i*16}" font-size="10.5" font-weight="${i===0?'700':'400'}" fill="${row.highlight?'#34583c':'#555'}">${escape(line)}</text>`).join('')}`;
+    };
     const box=(cell,x,y,column)=>{
       const [fill,ink,muted]=colors[cell.kind];
       const stroke=cell.kind==='code'?'#c5c5bf':fill;
@@ -50,9 +59,9 @@
         [30,78].map(dy=>arrow(`M320 ${y+dy} H335`)+arrow(`M510 ${y+dy} H525`)).join('')+arrow(`M700 ${y+54} H715`):
         [0,1,2].map(col=>arrow(`M${xs[col]+width} ${y+54} H${xs[col+1]-5}`)).join('');
       const loop=row.repeat?`<path d="M615 ${y+96} V${y+116} H425 V${y+101}" fill="none" stroke="#777" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#${id}-arrow)"/><text x="447" y="${y+111}" font-size="9" fill="#666">생성한 토큰을 다시 입력</text>`:'';
-      return `<g><text x="20" y="${y+39}" font-size="14" font-weight="700" fill="#202020">${escape(row.label)}</text><text x="20" y="${y+60}" font-size="10" fill="#777">${escape(row.example)}</text>${links}${row.cells.map((cell,col)=>box(cell,xs[col],y,col)).join('')}${loop}${i<b.rows.length-1?`<path d="M20 ${y+126} H900" stroke="#deded7"/>`:''}</g>`;
+      return `<g>${row.highlight?`<rect x="12" y="${y+3}" width="896" height="162" fill="none" stroke="#55725a" stroke-width="1.5"/>`:''}<text x="20" y="${y+39}" font-size="14" font-weight="700" fill="#202020">${escape(row.label)}</text><text x="20" y="${y+60}" font-size="10" fill="#777">${escape(row.example)}</text>${links}${row.cells.map((cell,col)=>box(cell,xs[col],y,col)).join('')}${loop}${training(row,y)}${i<b.rows.length-1?`<path d="M20 ${y+171} H900" stroke="#deded7"/>`:''}</g>`;
     }).join('');
-    const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 802" role="img" aria-labelledby="${id}-title ${id}-desc" font-family="Noto Sans KR, Arial, sans-serif"><title id="${id}-title">다섯 가지 decision model 구현의 입력·backbone·head·출력 비교</title><desc id="${id}-desc">${escape(b.caption)}</desc><rect width="920" height="802" fill="#fafaf8"/><defs><marker id="${id}-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#696961"/></marker></defs><text x="20" y="32" font-size="9" letter-spacing="1" fill="#777">FIVE PATHS</text>${xs.map((x,i)=>`<text x="${x}" y="32" font-size="10" letter-spacing="1" font-weight="700" fill="#444">${labels[i]}</text>`).join('')}<path d="M20 50 H900" stroke="#c5c5bf"/>${rows}<path d="M20 724 H900" stroke="#c5c5bf"/><rect x="20" y="745" width="10" height="10" fill="#e3dfed"/><text x="37" y="754" font-size="10" fill="#666">언어 backbone</text><rect x="153" y="745" width="10" height="10" fill="#dce8ec"/><text x="170" y="754" font-size="10" fill="#666">양방향 encoder</text><rect x="300" y="745" width="10" height="10" fill="#e33b27"/><text x="317" y="754" font-size="10" fill="#666">후보 점수 계산</text><rect x="443" y="745" width="10" height="10" fill="#efefec" stroke="#c5c5bf"/><text x="460" y="754" font-size="10" fill="#666">기존 층 · 생성 · 후처리</text><text x="20" y="781" font-size="10" fill="#777">색은 연산 역할을 표시한다. 가중치 고정·LoRA·head 학습·전체 학습 여부는 별도로 비교한다.</text></svg>`;
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 1052" role="img" aria-labelledby="${id}-title ${id}-desc" font-family="Noto Sans KR, Arial, sans-serif"><title id="${id}-title">다섯 구현의 계산 경로와 학습 위치. MNIST는 ③ 별도 head</title><desc id="${id}-desc">${escape(b.caption)}</desc><rect width="920" height="1052" fill="#fafaf8"/><defs><marker id="${id}-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#696961"/></marker></defs><text x="20" y="32" font-size="9" letter-spacing="1" fill="#777">FIVE PATHS</text>${xs.map((x,i)=>`<text x="${x}" y="32" font-size="10" letter-spacing="1" font-weight="700" fill="#444">${labels[i]}</text>`).join('')}<path d="M20 50 H900" stroke="#c5c5bf"/>${rows}<path d="M20 957 H900" stroke="#c5c5bf"/>${badge('고정', 'fixed',20,975,65)}${badge('학습', 'train',100,975,65)}${badge('선택 학습', 'optional',180,975,85)}<text x="282" y="991" font-size="10" fill="#666">고정 = 가중치 유지 · 학습 = 가중치 갱신 · 선택 = 직접 추가 학습할 때만</text><text x="20" y="1020" font-size="10" fill="#777">③은 실제 MNIST 설정이다. 다른 행은 대표적인 사용·학습 예이며 모든 제품의 필수 학습법을 뜻하지 않는다.</text><text x="20" y="1038" font-size="10" fill="#777">상자 색은 연산 역할을 표시한다. 학습데이터가 불필요한 경우에도 실제 문제의 성능 평가는 필요하다.</text></svg>`;
     const index=diagrams.push({svg,name:`${caseId}-architecture.svg`})-1;
     return `<figure class="pipeline architecture-comparison"><div class="pipeline-heading"><strong>${escape(b.title)}</strong><button type="button" data-download-diagram="${index}">SVG 저장 ↓</button></div><div class="pipeline-scroll" tabindex="0" aria-label="다섯 구현 방식의 구조도. 좁은 화면에서는 가로 스크롤할 수 있습니다.">${svg}</div><figcaption>${escape(b.caption)}</figcaption></figure>`;
   }

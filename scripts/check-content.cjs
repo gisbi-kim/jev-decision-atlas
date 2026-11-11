@@ -37,6 +37,18 @@ const architectureSvg=w.ArticleView.diagramAt(0);
 assert.equal(architectureSvg.name,'implementations-architecture.svg');
 for(const row of architecture.rows)assert(architectureSvg.svg.includes(row.label));
 assert(architectureSvg.svg.includes('생성한 토큰을 다시 입력'));
+const mnistRow=architecture.rows[2];
+assert(mnistRow.example.includes('MNIST'));
+assert(mnistRow.highlight);
+assert.deepEqual(Array.from(mnistRow.training.backbone, t=>Array.from(t)),[['기반 고정','fixed'],['LoRA 학습','train']]);
+assert.equal(mnistRow.training.head[0][1],'train');
+for(const row of architecture.rows){
+  assert.equal(row.training.data.length,2,row.label);
+  for(const group of [row.training.backbone,row.training.head])for(const [label,kind] of group){
+    assert(['fixed','train','optional'].includes(kind),label);
+    assert(architectureSvg.svg.includes(label),label);
+  }
+}
 const local=path.join(root,'assets/pokemon-local');
 const manifest=JSON.parse(fs.readFileSync(path.join(local,'manifest.json'),'utf8'));
 const crypto=require('node:crypto');

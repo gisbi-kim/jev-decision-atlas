@@ -4,7 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f7f7f5"><meta name="description" content="게임·웹·로봇의 Jev 사례 8편과 decision model 구현 방식 비교. Qwen, Clef, Laya, Kanana의 출력·학습 차이를 배우는 RT616 강의 노트.">
   <title>Jev 사용 사례 — RT616</title><link rel="icon" href="assets/favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="blog.css?v=20261111-architecture">
-  <script src="data.js" defer></script><script src="articles.js?v=20261111-concrete" defer></script><script src="pokemon-local.js" defer></script><script src="intro.js?v=20261111-concrete" defer></script><script src="inline-links.js" defer></script><script src="comparison.js?v=20261111-architecture" defer></script><script src="article-view.js?v=20261111-architecture" defer></script><script src="app.js" defer></script>
+  <script src="data.js" defer></script><script src="articles.js?v=20261111-concrete" defer></script><script src="pokemon-local.js" defer></script><script src="intro.js?v=20261111-concrete" defer></script><script src="inline-links.js" defer></script><script src="comparison.js?v=20261111-training" defer></script><script src="article-view.js?v=20261111-training" defer></script><script src="app.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#collection">사례 목록으로</a>
@@ -17,7 +17,7 @@
       <p class="sr-only" id="result-count" aria-live="polite"></p><div class="projects" id="projects"></div>
       <div id="empty-state" hidden><p>검색 결과가 없습니다.</p><button id="reset-filters">전체 사례 보기</button></div>
     </section>
-    <a class="tutorial-pocket comparison-pocket" href="#case/implementations" data-case="implementations"><div class="tutorial-number">09<span>COMPARE</span></div><div><p class="tutorial-eyebrow">마무리 비교 · 약 20분</p><h2>Jev를 다른 모델로 바꾸면?<br>다섯 가지 판단 구현.</h2><p>포켓몬 Qwen과 MNIST의 학습 차이에서 출발해,<br>토큰 점수·decision head·encoder·임베딩을 비교한다.</p></div><div class="tutorial-action">구현 방식 비교 읽기 ↗<small>8개 사례 → 모델의 계산 경로</small></div></a>
+    <a class="tutorial-pocket comparison-pocket" href="#case/implementations" data-case="implementations"><div class="tutorial-number">09<span>COMPARE</span></div><div><p class="tutorial-eyebrow">마무리 비교 · 약 25분</p><h2>행동을 고르는 다섯 구현.<br>어디를 학습해야 할까?</h2><p>포켓몬 Qwen과 MNIST는 어디에 속할까?<br>계산 경로와 본체 고정·LoRA·head 학습을 비교한다.</p></div><div class="tutorial-action">구현 방식 비교 읽기 ↗<small>8개 사례 → 모델의 계산 경로</small></div></a>
     <section id="sources" class="source-note"><h2>자료에 관하여</h2><div><p>제작자의 블로그, 구현 코드, 실험 기록을 바탕으로 구성한 강의 노트다. 포켓몬 글에서는 2389 Research의 정책 선택, Christian Mathiesen의 완주 구현, 강의자가 제공한 로컬 Qwen 실행의 기억과 프롬프트를 함께 살펴본다.</p><p>각 글은 <strong>판단에 필요한 정보와 선택지</strong>, <strong>선택을 실행하는 코드</strong>를 설명하고 실패 원인과 실험 결과를 연결한다. 마지막 비교 글은 공개 문서와 코드로 다섯 가지 판단 경로와 학습·병렬 처리의 차이를 살펴본다. 원문과 코드의 출처는 해당 문단에, 계산 문제의 풀이는 문제 아래에 있다.</p><a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev" target="_blank" rel="noopener">TypeSafe의 Jev 공식 소개 ↗</a></div></section>
   </main>
   <footer><span>RT616 · Vision / Image Processing</span><span>자료 확인 2026.11.11</span><a href="#">맨 위로 ↑</a></footer>
