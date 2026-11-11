@@ -73,6 +73,59 @@
         id: 'comparison-families', title: '같은 선택을 만드는 다섯 가지 계산 경로',
         blocks: [
           p('공격·회복·도주 중 하나를 고른다고 하자. 어떤 구현은 attack이라는 문자열을 쓰고, 어떤 구현은 A라는 토큰의 점수를 읽는다. 다른 구현은 후보의 내부 표현이나 별도로 만든 벡터를 비교한다. 아래 분류는 2026년 11월 11일 확인한 공개 문서·모델 카드·코드를 계산 경로에 따라 묶은 것이다. 서로 완전히 배타적인 이론 분류는 아니며, 한 프로젝트에 여러 경로가 함께 있을 수 있다.'),
+          {
+            type: 'diagram', layout: 'architecture-comparison',
+            title: '입력 → backbone → head / readout → 출력',
+            caption: '같은 네 열로 다섯 구현을 비교한 개념도다. ①은 토큰 생성을 반복하고, ②는 답 위치에서 후보 토큰 점수를 읽는다. ③·④는 별도 head가 후보를 채점하며, ⑤는 두 갈래로 만든 임베딩을 비교한다. 빨강은 후보 점수를 계산하는 위치로, 새 학습이 필요한 부분을 뜻하지 않는다. 좁은 화면에서는 도식 안을 가로로 스크롤할 수 있다.',
+            rows: [
+              {
+                label: '① 문자열 생성', example: '포켓몬 Qwen', repeat: true,
+                cells: [
+                  { kind: 'world', title: '상태 · 질문 · 후보', lines: ['목표와 행동 후보를 구성'] },
+                  { kind: 'llm', title: 'Decoder backbone', lines: ['입력과 생성 토큰을 읽음'] },
+                  { kind: 'code', title: '기존 LM head', lines: ['다음 토큰 점수', '토큰 선택을 반복'] },
+                  { kind: 'code', title: 'JSON / 행동 이름', lines: ['문자열을 완성한 뒤', '파싱 · 후보 검증'] }
+                ]
+              },
+              {
+                label: '② 토큰 점수', example: 'AnyJev · Nimble',
+                cells: [
+                  { kind: 'world', title: '상태 · 질문 · 후보', lines: ['후보를 A · B · C로 대응'] },
+                  { kind: 'llm', title: 'Decoder backbone', lines: ['답 위치의 hidden state'] },
+                  { kind: 'model', title: 'LM head / readout', lines: ['후보 토큰의 logits 추출', '축소 readout도 가능'] },
+                  { kind: 'code', title: '후보 확률 · 선택', lines: ['후보 안에서 softmax', '답 문자열 생성 생략'] }
+                ]
+              },
+              {
+                label: '③ 별도 head', example: 'Kev · Clef',
+                cells: [
+                  { kind: 'world', title: '상태 · 질문 · 후보', lines: ['질문과 후보 위치도 전달'] },
+                  { kind: 'llm', title: 'Decoder backbone', lines: ['입력의 hidden states'] },
+                  { kind: 'model', title: '별도 decision head', lines: ['Pointer / joint schema', '후보 표현 · 근거로 채점'] },
+                  { kind: 'code', title: '후보 확률 · 선택', lines: ['후보 logits → softmax', '선택 · yes/no · 점수'] }
+                ]
+              },
+              {
+                label: '④ Encoder', example: 'Laya · GLiNER',
+                cells: [
+                  { kind: 'world', title: '상태 · 질문 · 후보', lines: ['Text와 schema를 구성'] },
+                  { kind: 'vision', title: '양방향 encoder', lines: ['상태·질문·후보 함께 읽기'] },
+                  { kind: 'model', title: 'Typed decision head', lines: ['후보 marker 표현 채점', '필요시 답 조합 제약'] },
+                  { kind: 'code', title: '확률 · 허용된 답', lines: ['선택 · yes/no · 점수', '규칙을 적용하는 구현도 있음'] }
+                ]
+              },
+              {
+                label: '⑤ 임베딩 매칭', example: 'CLM · Kanana', split: true,
+                cells: [
+                  { kind: 'world', title: '분리된 입력', branches: ['상태 + 질문', '후보 각각'] },
+                  { kind: 'llm', title: '분리 인코딩', branches: ['상태·질문 → 벡터 u', '후보 각각 → 벡터 v'] },
+                  { kind: 'model', title: '임베딩 유사도', lines: ['선택적 projection 후', 'cosine similarity'] },
+                  { kind: 'code', title: '후보 확률 · 선택', lines: ['유사도 → softmax', '후보 벡터 재사용 가능'] }
+                ]
+              }
+            ]
+          },
+          p('①과 ②는 같은 LM head에서 출발할 수 있다. 갈리는 지점은 점수로 토큰을 계속 생성하는지, 필요한 후보 점수만 읽고 멈추는지다. ③과 ④는 별도 head를 사용하지만 backbone이 다르다. ⑤의 두 인코딩 상자는 가중치가 서로 다르다는 뜻은 아니며, 같은 backbone을 따로 호출할 수도 있다. CLM의 projection head와 Kanana의 임베딩 비교는 뒤에서 구분한다.'),
           table(['계열', '답을 계산하는 경로', '공개 사례'], [
             ['① 문자열 생성', 'LLM → 답 문자열 → 파싱·검증', '로컬 포켓몬 Qwen · TypeSafe LLM adapter'],
             ['② Vocabulary readout', '답 위치의 후보 토큰 점수 → softmax', 'AnyJev · SemIf · Nimble · Perplexity Decider'],

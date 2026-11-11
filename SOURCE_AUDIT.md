@@ -6,6 +6,8 @@
 
 `comparison.js`의 12절은 앞선 사례를 마무리하는 비교 해설이다. 출처 36개를 본문과 글 끝에 연결했다. 분류는 공개된 계산 경로를 바탕으로 작성한 편집상의 구분이며, 완전히 배타적인 이론 분류나 제품 순위로 표시하지 않는다.
 
+2절의 `implementations-architecture.svg`는 이 분류를 입력·backbone·head/readout·출력 네 열로 옮긴 개념도다. 원본 모델의 전체 아키텍처를 재현한 그림이 아니다. ①의 생성 반복, ②의 기존 LM head 후보 행 추출, ③·④의 별도 head, ⑤의 분리 인코딩과 선택적 projection을 표시한다. 붉은색은 후보 점수 계산 위치이며 학습 대상을 뜻하지 않는다. 분리된 인코딩의 가중치 공유 가능성과 CLM·Kanana의 projection 차이를 본문에서 설명한다.
+
 | 비교 범위 | 확인한 1차 자료 | 구분하여 반영한 내용 |
 | --- | --- | --- |
 | 포켓몬 / MNIST | 기존 공개 실행 기록, [MNIST 튜토리얼](https://gisbi-kim.github.io/jev-mnist-tutorial/site/index.html) | 생성한 행동 이름과 새 head의 확률, 과제 추가 학습과 기존 사전학습 |
