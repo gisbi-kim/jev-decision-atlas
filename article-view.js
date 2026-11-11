@@ -32,7 +32,32 @@
     const index=codes.push(b.code)-1;
     return `<figure class="code-block${b.wrap?' code-wrap':''}"><figcaption><div><span class="code-kind ${b.source?'original':''}">${b.kind}</span><strong>${escape(b.label)}</strong></div><button type="button" data-copy-code="${index}" aria-label="${escape(b.label)} 코드 복사">복사</button></figcaption><div class="code-language">${escape(b.lang)}${b.source?` · ${escape(b.file)}${b.start?` · L${b.start}`:''}`:` · ${escape(b.kind)}`}</div><pre tabindex="0" aria-label="${escape(b.label)}"><code>${b.code.split('\n').map((l,i)=>`<span class="code-line" data-line="${(b.start||1)+i}">${highlight(l)||' '}</span>`).join('\n')}</code></pre>${b.source?`<a class="code-source" href="${escape(b.source)}" target="_blank" rel="noopener">${escape(b.sourceLabel||(b.start?'해당 커밋의 원본 코드':'원문에서 읽기'))} ↗</a>`:''}</figure>`;
   }
+  function comparisonPipeline(b,caseId){
+    const id=`${caseId}-architecture-${diagrams.length+1}`;
+    const xs=[150,340,530,720],width=170,rowHeight=132;
+    const colors={world:['#202020','#fff','#ccc'],code:['#efefec','#202020','#686864'],model:['#e33b27','#fff','#ffe4de'],vision:['#dce8ec','#1f3f4b','#55707a'],llm:['#e3dfed','#3b3056','#756688']};
+    const labels=['INPUT','BACKBONE','HEAD / READOUT','OUTPUT'];
+    const arrow=d=>`<path d="${d}" fill="none" stroke="#696961" stroke-width="1.5" marker-end="url(#${id}-arrow)"/>`;
+    const box=(cell,x,y,column)=>{
+      const [fill,ink,muted]=colors[cell.kind];
+      const stroke=cell.kind==='code'?'#c5c5bf':fill;
+      if(cell.branches)return cell.branches.map((line,i)=>`<g><rect x="${x}" y="${y+12+i*48}" width="${width}" height="36" fill="${fill}" stroke="${stroke}"/><text x="${x+12}" y="${y+35+i*48}" font-size="12" font-weight="500" fill="${ink}">${escape(line)}</text></g>`).join('');
+      return `<g><rect x="${x}" y="${y+12}" width="${width}" height="84" fill="${fill}" stroke="${stroke}"/><text x="${x+12}" y="${y+29}" font-size="8" letter-spacing=".8" fill="${muted}">${labels[column]}</text><text x="${x+12}" y="${y+51}" font-size="14" font-weight="700" fill="${ink}">${escape(cell.title)}</text>${cell.lines.map((line,i)=>`<text x="${x+12}" y="${y+71+i*14}" font-size="10.5" fill="${muted}">${escape(line)}</text>`).join('')}</g>`;
+    };
+    const rows=b.rows.map((row,i)=>{
+      const y=72+i*rowHeight;
+      const links=row.split?
+        [30,78].map(dy=>arrow(`M320 ${y+dy} H335`)+arrow(`M510 ${y+dy} H525`)).join('')+arrow(`M700 ${y+54} H715`):
+        [0,1,2].map(col=>arrow(`M${xs[col]+width} ${y+54} H${xs[col+1]-5}`)).join('');
+      const loop=row.repeat?`<path d="M615 ${y+96} V${y+116} H425 V${y+101}" fill="none" stroke="#777" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#${id}-arrow)"/><text x="447" y="${y+111}" font-size="9" fill="#666">생성한 토큰을 다시 입력</text>`:'';
+      return `<g><text x="20" y="${y+39}" font-size="14" font-weight="700" fill="#202020">${escape(row.label)}</text><text x="20" y="${y+60}" font-size="10" fill="#777">${escape(row.example)}</text>${links}${row.cells.map((cell,col)=>box(cell,xs[col],y,col)).join('')}${loop}${i<b.rows.length-1?`<path d="M20 ${y+126} H900" stroke="#deded7"/>`:''}</g>`;
+    }).join('');
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 802" role="img" aria-labelledby="${id}-title ${id}-desc" font-family="Noto Sans KR, Arial, sans-serif"><title id="${id}-title">다섯 가지 decision model 구현의 입력·backbone·head·출력 비교</title><desc id="${id}-desc">${escape(b.caption)}</desc><rect width="920" height="802" fill="#fafaf8"/><defs><marker id="${id}-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#696961"/></marker></defs><text x="20" y="32" font-size="9" letter-spacing="1" fill="#777">FIVE PATHS</text>${xs.map((x,i)=>`<text x="${x}" y="32" font-size="10" letter-spacing="1" font-weight="700" fill="#444">${labels[i]}</text>`).join('')}<path d="M20 50 H900" stroke="#c5c5bf"/>${rows}<path d="M20 724 H900" stroke="#c5c5bf"/><rect x="20" y="745" width="10" height="10" fill="#e3dfed"/><text x="37" y="754" font-size="10" fill="#666">언어 backbone</text><rect x="153" y="745" width="10" height="10" fill="#dce8ec"/><text x="170" y="754" font-size="10" fill="#666">양방향 encoder</text><rect x="300" y="745" width="10" height="10" fill="#e33b27"/><text x="317" y="754" font-size="10" fill="#666">후보 점수 계산</text><rect x="443" y="745" width="10" height="10" fill="#efefec" stroke="#c5c5bf"/><text x="460" y="754" font-size="10" fill="#666">기존 층 · 생성 · 후처리</text><text x="20" y="781" font-size="10" fill="#777">색은 연산 역할을 표시한다. 가중치 고정·LoRA·head 학습·전체 학습 여부는 별도로 비교한다.</text></svg>`;
+    const index=diagrams.push({svg,name:`${caseId}-architecture.svg`})-1;
+    return `<figure class="pipeline architecture-comparison"><div class="pipeline-heading"><strong>${escape(b.title)}</strong><button type="button" data-download-diagram="${index}">SVG 저장 ↓</button></div><div class="pipeline-scroll" tabindex="0" aria-label="다섯 구현 방식의 구조도. 좁은 화면에서는 가로 스크롤할 수 있습니다.">${svg}</div><figcaption>${escape(b.caption)}</figcaption></figure>`;
+  }
   function pipeline(b,id){
+    if(b.layout==='architecture-comparison')return comparisonPipeline(b,id);
     let nodes=b.nodes.map(n=>({...n}));
     if(id==='robot-arm')nodes[1].kind='vision';
     const extra=!!b.extra;

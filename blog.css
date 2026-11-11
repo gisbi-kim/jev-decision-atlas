@@ -1,5 +1,6 @@
 /* Long-form case reader. The collection design stays in styles.css. */
 .tutorial-pocket.comparison-pocket{margin:50px 0 0}
+.architecture-comparison .pipeline-scroll svg{min-width:920px}
 @media(max-width:760px){.tutorial-pocket.comparison-pocket{margin-top:36px}}
 .code-wrap pre{max-height:680px;overflow:auto}.code-wrap code,.code-wrap .code-line{white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal}.code-wrap .code-line{min-width:0;width:100%;box-sizing:border-box}@media print{.code-wrap pre{max-height:none;overflow:visible}}
 .article-origin{font-size:11px;line-height:1.9;margin:22px 0 0;color:#777;word-break:keep-all}.article-origin a{color:#333;margin-left:9px;text-decoration:underline;text-underline-offset:4px;text-decoration-color:#bbb}.blog-section>p.section-source{font-size:11px;line-height:1.8;color:#777;margin:-6px 0 25px}.section-source a{text-decoration:underline;text-underline-offset:4px;text-decoration-color:#bbb}.article-origin a:hover,.section-source a:hover{color:var(--red)}
